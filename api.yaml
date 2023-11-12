@@ -1,0 +1,635 @@
+openapi: 3.0.0
+info:
+  title: WASAPhoto
+  version: "1.0.0"
+
+
+
+components:
+  schemas:
+        Id:
+          type: integer
+          description: The unique identifier for the user.
+          readOnly: True
+          pattern: "^[0-9-A-Za-z]{4}-[0-9-A-Za-z]{4}-[0-9-A-Za-z]{4}$"
+
+        Username:
+          type: string
+          description: The username of the user.
+          readOnly: True
+          pattern: '^.*?$'
+          minLength: 3
+          maxLength: 16
+
+        Title: 
+          type: string
+          pattern: '^.*?$'
+          maxLength: 30
+          description: The title of the photo.
+
+        File:
+          type: string
+          format: binary
+
+        Date:
+          type: object
+          properties:
+            year:
+              type: integer
+              minimum: 1900
+              maximum: 9999
+            month:
+              type: integer
+              minimum: 1
+              maximum: 12
+            day:
+              type: integer
+              minimum: 1
+              maximum: 31
+          required:
+            - year
+            - month
+            - day
+          description: A date represented by year, month, and day components.
+
+        Text:
+          type: string
+          pattern: '^.*?$'
+          maxLength: 300
+          description: The text of the comment.
+
+        User:
+          title: User
+          description: User registered to WASAPhoto
+          type: object
+          properties: 
+            userId:
+              $ref: "#/components/schemas/Id"
+            username:
+              $ref: "#/components/schemas/Username"
+          required:
+          - userId
+          - username
+
+        Photo:
+          title: Photo
+          description: Photo posted by a user
+          type: object
+          properties:
+            photoId:
+              $ref: "#/components/schemas/Id"
+            title:
+              $ref: "#/components/schemas/Title"
+            photo:
+              $ref: "#/components/schemas/File"
+            date:
+              $ref: "#/components/schemas/Date"
+            author:
+              $ref: "#/components/schemas/User"
+          required:
+            - title
+            - photoId
+            - photo
+            - date
+            
+        Comment:
+          title: Comment
+          type: object
+          properties:
+            commentId:
+              $ref: "#/components/schemas/Id"
+            author:
+              $ref: "#/components/schemas/User"
+            text:
+              $ref: "#/components/schemas/Text"
+            date:
+                $ref: "#/components/schemas/Date"
+          required:
+            - commentId
+            - author
+            - text
+            - date
+
+
+
+paths:
+  /session:
+    post:
+      tags: ["login"]
+      summary: Log in the user
+      description: |
+        If the use does not exist, it will be created,
+        and an identifier is returned.
+        If the user already exists, the identifier is returned.
+      operationId: doLogin
+      requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  $ref: "#/components/schemas/Username"
+        required: true
+
+      responses:
+        '201':
+          description: User created 
+          content:
+            application/json:  
+              schema:
+                type: object 
+                properties:
+                  userId:
+                    $ref: "#/components/schemas/Id"
+                  username:
+                    $ref: "#/components/schemas/Username"
+        '200': # return the user
+          description: User already exists 
+          content:
+            application/json:  
+              schema: { $ref: "#/components/schemas/User" }
+  
+  /users/{userId}: #setMyUserName
+    put: 
+      tags: ["username"]
+      operationId: setMyUserName
+      summary: Set the username of the user
+      description: |
+        Set the username of the user.
+        The username must be unique.
+        The user must be already logged in.
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/User" }    
+      requestBody:
+        description: New username
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Username" }
+        required: true        
+      responses:
+        "200":
+          description: Username succesfully set
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "404":
+          description: User don't exist
+        "401":
+          description: |
+            User not authorized to change username of another user
+
+  /users/{userId}/photos: #uploadPhoto
+    post:
+      tags: ["photo"]
+      summary: upload a photo
+      description: |
+        Upload a photo.
+        The user must be already logged in.
+      operationId: uploadPhoto
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
+      requestBody:
+        description: Photo and description
+        content:
+          multipart/form-data:
+            schema: { $ref: "#/components/schemas/Photo" }
+        required: true
+      responses:
+        "201":
+          description: Photo succesfully uploaded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Photo" }
+        "400":
+          description: |
+            The photo is not in the correct format
+  
+  /users/{userId}/following/: # followUser
+    post:
+      tags: ["following"]
+      summary: Follow a user
+      description: |
+        Follow a user.
+        The user must be already logged in.
+      operationId: followUser
+      parameters: 
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" } 
+      requestBody:
+        description: User to follow.
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Username" }
+        required: true
+      responses:
+        "201":
+          description: User succesfully followed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" } 
+        "403":
+          description: |
+            User not authorized to follow himself 
+            or a user already followed
+            or user blocked by the user tried to follow
+        "404":
+         description: User to follow not found
+        "503":
+          description: |
+            Too many requests to the server requestin to follow that user
+        
+  /user/{userId}/following/{username}: #unfollowUser
+    delete:
+      tags: ["unfollowing"]
+      description: Unfollow a user
+      operationId: unfollowUser
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
+        - name: username
+          in: path
+          description: The username of the user to unfollow.
+          required: true
+          schema: { $ref: "#/components/schemas/Username"}
+      responses:
+        "204":
+          description: User succesfully unfollowed
+        "403":
+          description: |
+            User not authorized to unfollow himself 
+            or a user not followed
+            or user blocked by the user tried to unfollow
+        "404":
+          description: User to unfollow not found
+
+  /users/{userId}/banned/: #banUser
+    post:
+      tags: ["banning"]
+      operationId: banUser
+      summary: Ban a user
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id"}
+      requestBody:
+        description: User to ban.
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Username" }
+        required: true 
+      responses:
+        "201":
+          description: User succesfully added to the ban list
+        "403":
+          description: |
+            User not authorized to ban himself 
+            or a user already banned
+            or user blocked by the user tried to ban
+
+  /users/{userId}/banned/{username}: #unbanUser
+    delete:
+      tags: ["unbanning"]
+      operationId: unbanUser
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id"}
+        - name: username
+          in: path
+          description: The username of the user to unfollow.
+          required: true
+          schema: { $ref: "#/components/schemas/Username"}
+      responses:
+        "204":
+          description: User succesfully unfollowed
+        "403":
+          description: |
+            User not authorized to unfollow himself 
+            or a user not followed
+            or user blocked by the user tried to unfollow
+        "404":
+          description: User to unfollow not found, maybe deleted the account
+
+  /users/{username}: #getUserProfile
+      get:
+        tags: ["finde profile"]
+        operationId: getUserProfile
+        summary: Get the profile of a user
+        parameters:
+          - name: username
+            in: path
+            description: The username of the user.
+            required: true
+            schema: { $ref: "#/components/schemas/Username"}  
+        responses:
+          "200":
+            description: User succesfully found
+            content:
+              application/json:
+                schema: { $ref: "#/components/schemas/User" }
+          "404":
+            description: User not found, maybe deleted the account
+          "403":
+            description: User not authorized to see the profile of another user
+
+  /users/{userId}/following: #getMyStream
+    get:
+      tags: ["stream"]
+      operationId: getMyStream
+      summary: stream of photos of users followed
+      description: |
+        Get the stream of photos of users followed in reverse
+        chronological order.
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id"}
+        - name: range
+          in: query
+          description: max number of photos in the returned list
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: date
+          in: query
+          description: date of the query  to get the last photos
+          required: false
+          schema: { $ref: "#/components/schemas/Date"}
+      responses:
+        "200":
+          description: Stream succesfully returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Photo" }
+        
+  /users/{userId}/following/{username}/photos/{photoId}/likes/: #likePhoto
+    put:
+      tags: ["like"]
+      summary: Like a photo
+      operationId: likePhoto
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id"}
+        - name: photoId
+          in: path
+          description: The identifier of the photo
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
+        - name: username
+          in: path
+          description: The username of the user who posted the photo
+          required: true
+          schema: { $ref: "#/components/schemas/Username" }
+      requestBody:
+        description: photo where we wnat to put a like.
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/User" }
+        required: true
+      responses:
+        "201":
+          description: Photo succesfully liked
+
+  /users/{userId}/following/{username}/photos/{photoId}/likes/{userId}: #unlikePhoto
+    delete: 
+      tags: ["unlike"]
+      summary: Unlike a photo.
+      operationId: unlikePhoto
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" } 
+        - name: photoId
+          in: path
+          description: The identifier of the photo
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
+        - name: username
+          in: path
+          description: The username of the user who posted the photo
+          required: true
+          schema: { $ref: "#/components/schemas/Username"}
+      responses:
+        "204":
+          description: Photo succesfully unliked
+        "403":
+          description: |
+            User not authorized to unlike a photo, blocked by the owener of the photo
+        "404":
+          description: Photo not found
+
+  /users/{userId}/following/{username}/photos/{photoId}/comments/: #commentPhoto
+    post:
+      tags: ["comment"]
+      summary: Comment a photo
+      operationId: commentPhoto
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" } 
+        - name: photoId
+          in: path
+          description: The identifier of the photo
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
+        - name: username
+          in: path
+          description: The username of the user who posted the photo
+          required: true
+          schema: { $ref: "#/components/schemas/Username"}
+      requestBody:
+        description: photo where we wnat to put a like.
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Comment" }
+        required: true
+      responses:
+        "201":
+          description: Photo succesfully commented   
+        "404":
+          description: Photo not found
+        "403":
+          description: |
+            User not authorized to comment a photo, blocked by the owener of the photo
+        
+  /users/{userId}/photos/{photoId}/comments/{commentId}: #uncommentPhoto
+    delete:
+      tags: ["unncomment"]
+      summary: Delete a comment from a photo
+      operationId: uncommentPhoto
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
+        - name: photoId
+          in: path
+          description: The identifier of the photo
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
+        - name: commentId
+          in: path
+          description: The identifier of the comment
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
+      responses:
+        "204":
+          description: Comment succesfully deleted"
+        "401":
+          description: |
+            User not authorized to delete a comment, not the owner of the photo
+        "404":
+          description: |
+            Comment not found or
+            Photo not found, maybe deleted
+
+  /users/{userId}/photos/{photoId}: #deletePhoto
+    delete:
+      tags: ["delete photo"]
+      operationId: deletePhoto
+      summary: delete a photo
+      description: |
+        Delete a photo.
+        The user must be already logged in.
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
+        - name: photoId
+          in: path
+          description: The identifier of the photo
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
+      responses:
+        "204":
+          description: photo succesfully deleted"
+        "401":
+          description: |
+            User not authorized to delete a photo, not the owner of the photo
+        "404":
+          description: photo not found 
+        
+
+
+
+
+          
+      
+
+        
+
+
+                  
+      
+      
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+        
+
+
+                  
+      
+      
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
