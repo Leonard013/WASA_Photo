@@ -3,28 +3,42 @@ info:
   title: WASAPhoto
   version: "1.0.0"
 
-
+tags:
+  - name: login
+    description: Login and registration
+  - name: user
+    description: User profile
+  - name: photo
+    description: Photo upload and delete
+  - name: following
+    description: Follow and unfollow users
+  - name: ban
+    description: Ban and unban users
+  - name: stream
+    description: Stream of photos of users followed
+  - name: like
+    description: Like and unlike photos
+  - name: comment
+    description: Comment and uncomment photos
 
 components:
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
 
-
   securitySchemes:
     bearerAuth:
       type: http
+      description: JWT Authorization header using the Bearer
       scheme: bearer
       bearerFormat: JWT    
 
   schemas:
         Id:
-          type: integer
+          type: string
           description: The unique identifier for the user.
           readOnly: True
-          minimum: 0x000000000000
-          maximum: 0xfffffffffff
-          example: 0x123456789abc
+          pattern: "{09az}{8}-{09az}{4}-{09az}{4}-{09az}{4}-{09az}{12}"
 
         Username:
           type: string
@@ -32,40 +46,25 @@ components:
           readOnly: True
           pattern: '^.*$'
           minLength: 3
-          maxLength: 16
+          maxLength: 20
 
         Title: 
           type: string
+          description: The title of the photo.
           pattern: '^.*?$'
           minLength: 0
           maxLength: 30
-          description: The title of the photo.
-
+          
         File:
           description: The photo file to upload.
           type: string
           format: binary
 
         Date:
-          description: A date represented by year, month, and day components.
-          type: object
-          properties:
-            year:
-              type: integer
-              minimum: 1900
-              maximum: 9999
-            month:
-              type: integer
-              minimum: 1
-              maximum: 12
-            day:
-              type: integer
-              minimum: 1
-              maximum: 31
-          required:
-            - year
-            - month
-            - day
+          description: A date represented by year, month, and day components(YYYY-MM-DD).
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+
 
         Text:
           description: The text of the comment.
@@ -73,7 +72,6 @@ components:
           pattern: '^.*?$'
           minLength: 0
           maxLength: 300
-
 
         User:
           title: User
@@ -102,12 +100,13 @@ components:
             date:
               $ref: "#/components/schemas/Date"
             author:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/Id"
           required:
             - title
             - photoId
             - photo
             - date
+            - author
 
         Like:
           title: Like
@@ -119,9 +118,10 @@ components:
             photoId:
               $ref: "#/components/schemas/Id"
             author:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/Id"
           required:
             - likeId
+            - photoId
             - author
             
         Comment:
@@ -129,15 +129,18 @@ components:
           description: Comment of a photo
           type: object
           properties:
+            photoId:
+              $ref: "#/components/schemas/Id"
             commentId:
               $ref: "#/components/schemas/Id"
             author:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/Id"
             text:
               $ref: "#/components/schemas/Text"
             date:
                 $ref: "#/components/schemas/Date"
           required:
+            - photoId
             - commentId
             - author
             - text
@@ -187,7 +190,7 @@ paths:
             application/json:  
               schema: { $ref: "#/components/schemas/User" }
   
-  /users/{userId}/photos: #uploadPhoto
+  /photos/: #uploadPhoto
     post:
       tags: ["photo"]
       summary: upload a photo
@@ -195,23 +198,28 @@ paths:
         Upload a photo.
         The user must be already logged in.
       operationId: uploadPhoto
-      parameters:
-        - name: userId
-          in: path
-          description: The identifier of the user.
-          required: true
-          schema: { $ref: "#/components/schemas/Id" }
       requestBody:
         description: Photo and description
+        required: true
         content:
           multipart/form-data:
-            schema: { $ref: "#/components/schemas/Photo" }
-        required: true
+            schema:
+              type: array 
+              items:
+                type: object
+                properties:
+                  title:
+                    $ref: "#/components/schemas/Title"
+                  photo:
+                    $ref: "#/components/schemas/File"
+                  userId:
+                    $ref: "#/components/schemas/Id"
+        
       responses:
         "201":
           description: Photo succesfully uploaded
           content:
-            application/json:
+            multipart/form-data:
               schema: { $ref: "#/components/schemas/Photo" }
         "400":
           description: |
@@ -220,6 +228,31 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
   
+  /photos/{photoId}: #deletePhoto
+    delete:
+      tags: ["photo"]
+      operationId: deletePhoto
+      summary: delete a photo
+      description: |
+        Delete a photo.
+        The user must be already logged in.
+      parameters:
+        - name: photoId
+          in: path
+          description: The identifier of the photo
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
+      responses:
+        "204":
+          description: photo succesfully deleted"
+        "403":
+          description: |
+            User not authorized to delete a photo, not the owner of the photo
+        "404":
+          description: photo not found 
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        
   /users/{userId}/following/: # followUser
     post:
       tags: ["following"]
@@ -261,7 +294,7 @@ paths:
         
   /user/{userId}/following/{username}: #unfollowUser
     delete:
-      tags: ["unfollowing"]
+      tags: ["following"]
       summary: Unfollow a user
       description: Unfollow a user
       operationId: unfollowUser
@@ -279,9 +312,6 @@ paths:
       responses:
         "204":
           description: User succesfully unfollowed
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/User" }
         "403":
           description: |
             User not authorized to unfollow himself 
@@ -292,20 +322,14 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /users/{userId}/banned/: #banUser
+  /banned/: #banUser
     post:
-      tags: ["banning"]
+      tags: ["ban"]
       operationId: banUser
       summary: Ban a user
       description: |
         Ban a user.
         The user must be already logged in.
-      parameters:
-        - name: userId
-          in: path
-          description: The identifier of the user.
-          required: true
-          schema: { $ref: "#/components/schemas/Id"}
       requestBody:
         description: User to ban.
         content:
@@ -326,20 +350,15 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /users/{userId}/banned/{username}: #unbanUser
+  /banned/{username}: #unbanUser
     delete:
-      tags: ["unbanning"]
+      tags: ["ban"]
       operationId: unbanUser
       summary: Unban a user
       description: |
         Unban a user.
         The user must be already logged in.
       parameters:
-        - name: userId
-          in: path
-          description: The identifier of the user.
-          required: true
-          schema: { $ref: "#/components/schemas/Id"}
         - name: username
           in: path
           description: The username of the user to unfollow.
@@ -348,9 +367,6 @@ paths:
       responses:
         "204":
           description: User succesfully unfollowed
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/User" }
         "403":
           description: |
             User not authorized to unban himself 
@@ -363,7 +379,7 @@ paths:
 
   /users/{username}: # getUserProfile & setMyUserName
       get:
-        tags: ["finde profile"]
+        tags: ["user"]
         operationId: getUserProfile
         summary: Get the profile of a user
         description: |
@@ -390,7 +406,7 @@ paths:
             $ref: "#/components/responses/UnauthorizedError"
 
       put: 
-        tags: ["username"]
+        tags: ["user"]
         operationId: setMyUserName
         summary: Set the username of the user
         description: |
@@ -419,9 +435,6 @@ paths:
             description: User don't exist
           "401":
             $ref: "#/components/responses/UnauthorizedError"
-
-
-
       
   /users/{userId}/following: #getMyStream
     get:
@@ -445,58 +458,49 @@ paths:
             description: max and min number of photos in the returned list
             type: integer
             minimum: 1
-            maximum: 100
-            default: 10
-        - name: date
-          in: query
-          description: date of the query  to get the last photos
-          required: false
-          schema: { $ref: "#/components/schemas/Date"}
+            maximum: 25
+            default: 25
       responses:
         "200":
           description: Stream succesfully returned
           content:
-            application/json:
+            multipart/form-data:
               schema:
                 description: Stream of photos
                 type: array
                 minItems: 0
                 maxItems: 100
                 items: { $ref: "#/components/schemas/Photo" }
-                
+        "404":
+          description: |
+            Users not found, maybe deleted the account
+            or blocked by all the users followed
+            or no user followed             
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         
-  /users/{userId}/following/{username}/photos/{photoId}/likes/: #likePhoto
-    put:
+  /likes/: #likePhoto 
+    post:
       tags: ["like"]
       summary: Like a photo
       description: |
         Like a photo.
         The user must be already logged in.
       operationId: likePhoto
-      parameters:
-        - name: userId
-          in: path
-          description: The identifier of the user.
-          required: true
-          schema: { $ref: "#/components/schemas/Id"}
-        - name: photoId
-          in: path
-          description: The identifier of the photo
-          required: true
-          schema: { $ref: "#/components/schemas/Id" }
-        - name: username
-          in: path
-          description: The username of the user who posted the photo
-          required: true
-          schema: { $ref: "#/components/schemas/Username" }
       requestBody:
-        description: photo where we wnat to put a like.
+        description: Photo and description
+        required: true
         content:
           application/json:
-            schema: { $ref: "#/components/schemas/Like" }
-        required: true
+            schema:
+              type: array
+              items:
+                type: integer
+                properties:
+                  photoId:
+                    $ref: "#/components/schemas/Id"
+                  authorId:
+                    $ref: "#/components/schemas/Id"
       responses:
         "201":
           description: Photo succesfully liked
@@ -511,30 +515,15 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /users/{userId}/following/{username}/photos/{photoId}/likes/{likeId}: #unlikePhoto
+  /likes/{likeId}: #unlikePhoto
     delete: 
-      tags: ["unlike"]
+      tags: ["like"]
       summary: Unlike a photo.
       description: |
         Unlike a photo.
         The user must be already logged in.
       operationId: unlikePhoto
       parameters:
-        - name: userId
-          in: path
-          description: The identifier of the user.
-          required: true
-          schema: { $ref: "#/components/schemas/Id" } 
-        - name: photoId
-          in: path
-          description: The identifier of the photo
-          required: true
-          schema: { $ref: "#/components/schemas/Id" }
-        - name: username
-          in: path
-          description: The username of the user who posted the photo
-          required: true
-          schema: { $ref: "#/components/schemas/Username"}
         - name: likeId
           in: path
           description: The identifier of the like
@@ -545,13 +534,13 @@ paths:
           description: Photo succesfully unliked
         "403":
           description: |
-            User not authorized to unlike a photo, blocked by the owner of the photo (photo retrieved by a link or by other form of sharing)
+            photo deleted, blocked by the owner of the photo (photo retrieved by a link or by other form of sharing)
         "404":
           description: Photo not found
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /users/{userId}/following/{username}/photos/{photoId}/comments/: #commentPhoto
+  /comments/: #commentPhoto
     post:
       tags: ["comment"]
       summary: Comment a photo
@@ -559,28 +548,22 @@ paths:
         Comment a photo.
         The user must be already logged in.
       operationId: commentPhoto
-      parameters:
-        - name: userId
-          in: path
-          description: The identifier of the user.
-          required: true
-          schema: { $ref: "#/components/schemas/Id" } 
-        - name: photoId
-          in: path
-          description: The identifier of the photo
-          required: true
-          schema: { $ref: "#/components/schemas/Id" }
-        - name: username
-          in: path
-          description: The username of the user who posted the photo
-          required: true
-          schema: { $ref: "#/components/schemas/Username"}
       requestBody:
-        description: photo where we wnat to put a like.
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/Comment" }
+        description: Photo and description
         required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  photoId:
+                    $ref: "#/components/schemas/Id"
+                  authorId:
+                    $ref: "#/components/schemas/Id"
+                  text:
+                    $ref: "#/components/schemas/Text"
       responses:
         "201":
           description: Photo succesfully commented  
@@ -591,29 +574,19 @@ paths:
           description: Photo not found
         "403":
           description: |
-            User not authorized to comment a photo, blocked by the owener of the photo (photo retrieved by a link or by other form of sharing)
+            Photo deleted, blocked by the owener of the photo (photo retrieved by a link or by other form of sharing)
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         
-  /users/{userId}/photos/{photoId}/comments/{commentId}: #uncommentPhoto
+  /comments/{commentId}: #uncommentPhoto
     delete:
-      tags: ["unncomment"]
+      tags: ["comment"]
       summary: Delete a comment from a photo
       description: |
         Delete a comment from a photo.
         The user must be already logged in.
       operationId: uncommentPhoto
       parameters:
-        - name: userId
-          in: path
-          description: The identifier of the user.
-          required: true
-          schema: { $ref: "#/components/schemas/Id" }
-        - name: photoId
-          in: path
-          description: The identifier of the photo
-          required: true
-          schema: { $ref: "#/components/schemas/Id" }
         - name: commentId
           in: path
           description: The identifier of the comment
@@ -633,36 +606,6 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /users/{userId}/photos/{photoId}: #deletePhoto
-    delete:
-      tags: ["delete photo"]
-      operationId: deletePhoto
-      summary: delete a photo
-      description: |
-        Delete a photo.
-        The user must be already logged in.
-      parameters:
-        - name: userId
-          in: path
-          description: The identifier of the user.
-          required: true
-          schema: { $ref: "#/components/schemas/Id" }
-        - name: photoId
-          in: path
-          description: The identifier of the photo
-          required: true
-          schema: { $ref: "#/components/schemas/Id" }
-      responses:
-        "204":
-          description: photo succesfully deleted"
-        "403":
-          description: |
-            User not authorized to delete a photo, not the owner of the photo
-        "404":
-          description: photo not found 
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        
 
 
 
