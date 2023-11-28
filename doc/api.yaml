@@ -102,7 +102,7 @@ components:
               $ref: "#/components/schemas/Id"
             title:
               $ref: "#/components/schemas/Title"
-            photopath:
+            photoPath:
               $ref: "#/components/schemas/Path"
             date:
               $ref: "#/components/schemas/Date"
@@ -329,7 +329,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /banned/: #banUser
+  /{userId}/banned/: #banUser
     post:
       tags: ["ban"]
       operationId: banUser
@@ -337,6 +337,12 @@ paths:
       description: |
         Ban a user.
         The user must be already logged in.
+      parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user who want to ban.
+          required: true
+          schema: { $ref: "#/components/schemas/Id"}
       requestBody:
         description: User to ban.
         content:
@@ -357,7 +363,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /banned/{username}: #unbanUser
+  /{userId}/banned/{username}: #unbanUser
     delete:
       tags: ["ban"]
       operationId: unbanUser
@@ -366,9 +372,14 @@ paths:
         Unban a user.
         The user must be already logged in.
       parameters:
+        - name: userId
+          in: path
+          description: The identifier of the user who want to unban.
+          required: true
+          schema: { $ref: "#/components/schemas/Id"}
         - name: username
           in: path
-          description: The username of the user to unfollow.
+          description: The username of the user unbanned.
           required: true
           schema: { $ref: "#/components/schemas/Username"}
       responses:
