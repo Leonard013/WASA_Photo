@@ -73,6 +73,13 @@ components:
           minLength: 0
           maxLength: 300
 
+        Path:
+          description: The paths of the photo.
+          type: string
+          pattern: '^.*?$'
+          minLength: 0
+          maxLength: 300
+
         User:
           title: User
           description: User registered to WASAPhoto
@@ -95,8 +102,8 @@ components:
               $ref: "#/components/schemas/Id"
             title:
               $ref: "#/components/schemas/Title"
-            photo:
-              $ref: "#/components/schemas/File"
+            photopath:
+              $ref: "#/components/schemas/Path"
             date:
               $ref: "#/components/schemas/Date"
             author:
