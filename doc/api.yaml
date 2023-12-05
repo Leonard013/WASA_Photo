@@ -1,3 +1,9 @@
+#TODO: Check missing parameters in the requests
+#TODO: Create better references
+
+
+
+
 openapi: 3.0.0
 info:
   title: WASAPhoto
@@ -39,6 +45,8 @@ components:
           description: The unique identifier for the user.
           readOnly: True
           pattern: "{09az}{8}-{09az}{4}-{09az}{4}-{09az}{4}-{09az}{12}"
+          minLength: 36
+          maxLength: 36
 
         Username:
           type: string
@@ -59,11 +67,15 @@ components:
           description: The photo file to upload.
           type: string
           format: binary
+          minLength: 0
+          maxLength: 10000000
 
         Date:
           description: A date represented by year, month, and day components(YYYY-MM-DD).
           type: string
           pattern: '^\d{4}-\d{2}-\d{2}$'
+          minLength: 10
+          maxLength: 10
 
 
         Text:
@@ -205,6 +217,12 @@ paths:
         Upload a photo.
         The user must be already logged in.
       operationId: uploadPhoto
+      parameters: 
+        - name: userId
+          in: query
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" } 
       requestBody:
         description: Photo and description
         required: true
@@ -212,8 +230,11 @@ paths:
           multipart/form-data:
             schema:
               type: array 
+              description: Photo, description and author
               items:
                 type: object
+                minItems: 3 
+                maxItems: 3
                 properties:
                   title:
                     $ref: "#/components/schemas/Title"
@@ -221,6 +242,7 @@ paths:
                     $ref: "#/components/schemas/File"
                   userId:
                     $ref: "#/components/schemas/Id"
+                  
         
       responses:
         "201":
@@ -249,9 +271,14 @@ paths:
           description: The identifier of the photo
           required: true
           schema: { $ref: "#/components/schemas/Id" }
+        - name: userId
+          in: query
+          description: The identifier of the user
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
       responses:
         "204":
-          description: photo succesfully deleted"
+          description: "photo succesfully deleted"
         "403":
           description: |
             User not authorized to delete a photo, not the owner of the photo
@@ -396,19 +423,25 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
 
   /users/{username}: # getUserProfile & setMyUserName
+      parameters:
+          - name: username
+            in: path
+            description: The username of the user.
+            required: true
+            schema: { $ref: "#/components/schemas/Username"} 
       get:
         tags: ["user"]
         operationId: getUserProfile
         summary: Get the profile of a user
         description: |
           Get the profile of a user.
-          The user must be already logged in.
-        parameters:
-          - name: username
-            in: path
-            description: The username of the user.
-            required: true
-            schema: { $ref: "#/components/schemas/Username"}  
+          The user must be already logged in. 
+        parameters: 
+        - name: userId
+          in: query
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" } 
         responses:
           "200":
             description: User succesfully found
@@ -430,13 +463,13 @@ paths:
         description: |
           Set the username of the user.
           The username must be unique.
-          The user must be already logged in.
-        parameters:
-          - name: username
-            in: path
-            description: The username of the user.
-            required: true
-            schema: { $ref: "#/components/schemas/Username"}    
+          The user must be already logged in.   
+        parameters: 
+        - name: userId
+          in: query
+          description: The identifier of the user.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" } 
         requestBody:
           description: New username
           content:
@@ -512,8 +545,12 @@ paths:
           application/json:
             schema:
               type: array
+              description: Photo and author
               items:
-                type: integer
+                type: string
+                description: Photo and author
+                minItems: 2
+                maxItems: 2
                 properties:
                   photoId:
                     $ref: "#/components/schemas/Id"
@@ -547,6 +584,11 @@ paths:
           description: The identifier of the like
           required: true
           schema: { $ref: "#/components/schemas/Id" }
+        - name: userId
+          in: query
+          description: The identifier of the user who want to unlike.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" } 
       responses:
         "204":
           description: Photo succesfully unliked
@@ -573,8 +615,11 @@ paths:
           multipart/form-data:
             schema:
               type: array
+              description: Photo, author and text
               items:
-                type: object
+                type: string
+                minItems: 3
+                maxItems: 3
                 properties:
                   photoId:
                     $ref: "#/components/schemas/Id"
@@ -610,6 +655,11 @@ paths:
           description: The identifier of the comment
           required: true
           schema: { $ref: "#/components/schemas/Id" }
+        - name: userId
+          in: query
+          description: The identifier of the user who want to delete the comment.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" } 
       responses:
         "204":
           description: Comment succesfully deleted"
