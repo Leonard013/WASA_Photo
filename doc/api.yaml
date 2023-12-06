@@ -115,9 +115,9 @@ components:
             author:
               $ref: "#/components/schemas/Id"
           required:
-            - title
             - photoId
-            - photo
+            - title
+            - photoPath
             - date
             - author
 
