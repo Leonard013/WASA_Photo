@@ -60,6 +60,7 @@ components:
         File:
           description: The photo file to upload.
           type: string
+          pattern: '^[01]*$'
           format: binary
           minLength: 0
           maxLength: 10000000
@@ -85,6 +86,7 @@ components:
           pattern: '^.*?$'
           minLength: 0
           maxLength: 300
+
 
         User:
           title: User
@@ -224,11 +226,11 @@ paths:
           multipart/form-data:
             schema:
               type: array 
+              minItems: 3 
+              maxItems: 3
               description: Photo, description and author
               items:
                 type: object
-                minItems: 3 
-                maxItems: 3
                 properties:
                   title:
                     $ref: "#/components/schemas/Title"
@@ -281,7 +283,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         
-  /users/{userId}/following/: # followUser
+  /following/{userId}/: # followUser
     post:
       tags: ["following"]
       summary: Follow a user
@@ -320,7 +322,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         
-  /user/{userId}/following/{username}: #unfollowUser
+  /following/{userId}/{username}: #unfollowUser
     delete:
       tags: ["following"]
       summary: Unfollow a user
@@ -350,7 +352,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /{userId}/banned/: #banUser
+  /banned/{userId}/: #banUser
     post:
       tags: ["ban"]
       operationId: banUser
@@ -384,7 +386,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /{userId}/banned/{username}: #unbanUser
+  /banned/{userId}/{username}: #unbanUser
     delete:
       tags: ["ban"]
       operationId: unbanUser
@@ -539,12 +541,12 @@ paths:
           application/json:
             schema:
               type: array
+              minItems: 2
+              maxItems: 2
               description: Photo and author
               items:
                 type: string
                 description: Photo and author
-                minItems: 2
-                maxItems: 2
                 properties:
                   photoId:
                     $ref: "#/components/schemas/Id"
@@ -609,11 +611,11 @@ paths:
           multipart/form-data:
             schema:
               type: array
+              minItems: 3
+              maxItems: 3
               description: Photo, author and text
               items:
                 type: string
-                minItems: 3
-                maxItems: 3
                 properties:
                   photoId:
                     $ref: "#/components/schemas/Id"
