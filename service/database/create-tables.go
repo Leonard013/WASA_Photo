@@ -52,8 +52,8 @@ func CreateTables(db *sql.DB) error {
 	// Create Comment table
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS Comments (
-			photoId TEXT NOT NULL,
 			commentId TEXT NOT NULL PRIMARY KEY,
+			photoId TEXT NOT NULL,
 			author TEXT NOT NULL,
 			text TEXT,
 			date TEXT,
@@ -67,35 +67,23 @@ func CreateTables(db *sql.DB) error {
 
 	// Create Following table
 	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS Following (
-			profileId TEXT NOT NULL PRIMARY KEY,
-			followed TEXT NOT NULL,
+		CREATE TABLE IF NOT EXISTS Follow (
+			profileId TEXT NOT NULL,
+			followedId TEXT NOT NULL,
+			PRIMARY KEY (profileId, followedId),
 			FOREIGN KEY (profileId) REFERENCES User(userId) ON DELETE CASCADE,
-			FOREIGN KEY (followed) REFERENCES User(userId) ON DELETE CASCADE
+			FOREIGN KEY (followedId) REFERENCES User(userId) ON DELETE CASCADE
 		);
 	`)
 	if err != nil {
 		return fmt.Errorf("error creating Following table: %w", err)
 	}
 
-	// Create Followers table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS Followers (
-			profileId TEXT NOT NULL PRIMARY KEY,
-			followerId TEXT NOT NULL,
-			FOREIGN KEY (followerId) REFERENCES User(userId) ON DELETE CASCADE,
-			FOREIGN KEY (profileId) REFERENCES User(userId) ON DELETE CASCADE
-		);
-	`)
-	if err != nil {
-		return fmt.Errorf("error creating Followers table: %w", err)
-	}
-
 	// Create Banned table
 	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS Banned (
-			bannedId TEXT NOT NULL,
+		CREATE TABLE IF NOT EXISTS Ban (
 			bannerId TEXT NOT NULL,
+			bannedId TEXT NOT NULL,
 			PRIMARY KEY (bannedId, bannerId),
 			FOREIGN KEY (bannedId) REFERENCES User(userId) ON DELETE CASCADE,
 			FOREIGN KEY (bannerId) REFERENCES User(userId) ON DELETE CASCADE

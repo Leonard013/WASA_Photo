@@ -13,7 +13,7 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	w.Header().Set("content-type", "application/json")
 
 	username := ps.ByName("username")
-	id, err := rt.db.GetUser(username)
+	id, err := rt.db.GetUserId(username)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

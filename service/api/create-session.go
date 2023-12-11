@@ -17,9 +17,8 @@ func (rt *_router) createSession(w http.ResponseWriter, r *http.Request, ps http
 	r.ParseForm()
 	username := r.FormValue("username")
 
-	id, err := rt.db.GetUser(username)
+	id, err := rt.db.GetUserId(username)
 	if err != nil {
-		ctx.Logger.Info("Hello World!")
 		// Create new user
 		id, err = rt.db.CreateId("Users")
 		if err != nil {
