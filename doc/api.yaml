@@ -100,7 +100,7 @@ components:
           required:
           - userId
           - username
-
+        
         Photo:
           title: Photo
           description: Photo posted by a user
@@ -283,7 +283,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         
-  /following/{userId}/: # followUser
+  /follow/: # followUser
     post:
       tags: ["following"]
       summary: Follow a user
@@ -292,11 +292,6 @@ paths:
         The user must be already logged in.
       operationId: followUser
       parameters: 
-        - name: userId
-          in: path
-          description: The identifier of the user.
-          required: true
-          schema: { $ref: "#/components/schemas/Id" } 
         - name: token
           in: query
           description: The token for the authentication method.
@@ -305,8 +300,14 @@ paths:
       requestBody:
         description: User to follow.
         content:
-          application/json:
-            schema: { $ref: "#/components/schemas/Username" }
+         application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  $ref: "#/components/schemas/Id"
+                username:
+                  $ref: "#/components/schemas/Username"
         required: true
       responses:
         "201":
@@ -327,7 +328,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         
-  /following/{userId}/{username}: #unfollowUser
+  /follow/{username}: #unfollowUser
     delete:
       tags: ["following"]
       summary: Unfollow a user
@@ -335,7 +336,7 @@ paths:
       operationId: unfollowUser
       parameters:
         - name: userId
-          in: path
+          in: query
           description: The identifier of the user.
           required: true
           schema: { $ref: "#/components/schemas/Id" }
@@ -362,7 +363,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /banned/{userId}/: #banUser
+  /ban/: #banUser
     post:
       tags: ["ban"]
       operationId: banUser
@@ -371,21 +372,23 @@ paths:
         Ban a user.
         The user must be already logged in.
       parameters:
-        - name: userId
-          in: path
-          description: The identifier of the user who want to ban.
-          required: true
-          schema: { $ref: "#/components/schemas/Id"}
         - name: token
           in: query
           description: The token for the authentication method.
           required: true
           schema: { $ref: "#/components/schemas/Id" }
       requestBody:
-        description: User to ban.
+        description: Username to ban and userId of the user who is bannig.
         content:
           application/json:
-            schema: { $ref: "#/components/schemas/Username" }
+            schema:
+              type: object
+              properties:
+                username:
+                  $ref: "#/components/schemas/Username"
+                userId:
+                  $ref: "#/components/schemas/Id"
+
         required: true 
       responses:
         "201":
@@ -401,7 +404,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /banned/{userId}/{username}: #unbanUser
+  /ban/{username}: #unbanUser
     delete:
       tags: ["ban"]
       operationId: unbanUser
@@ -411,7 +414,7 @@ paths:
         The user must be already logged in.
       parameters:
         - name: userId
-          in: path
+          in: query
           description: The identifier of the user who want to unban.
           required: true
           schema: { $ref: "#/components/schemas/Id"}
