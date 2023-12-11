@@ -13,6 +13,7 @@ func (rt *_router) Handler() http.Handler {
 
 	rt.router.POST("/session", rt.wrap(rt.createSession)) // doLogin
 	rt.router.GET("/users/:username", rt.getUser)         // getUserProfile
+	rt.router.POST("/following/{userId}/", rt.wrap(rt.followUser))
 
 	rt.router.GET("/liveness", rt.liveness)
 	return rt.router

@@ -214,9 +214,9 @@ paths:
         The user must be already logged in.
       operationId: uploadPhoto
       parameters: 
-        - name: userId
+        - name: token
           in: query
-          description: The identifier of the user.
+          description: The token for the authentication method.
           required: true
           schema: { $ref: "#/components/schemas/Id" } 
       requestBody:
@@ -267,9 +267,9 @@ paths:
           description: The identifier of the photo
           required: true
           schema: { $ref: "#/components/schemas/Id" }
-        - name: userId
+        - name: token
           in: query
-          description: The identifier of the user
+          description: The token for the authentication method.
           required: true
           schema: { $ref: "#/components/schemas/Id" }
       responses:
@@ -297,6 +297,11 @@ paths:
           description: The identifier of the user.
           required: true
           schema: { $ref: "#/components/schemas/Id" } 
+        - name: token
+          in: query
+          description: The token for the authentication method.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
       requestBody:
         description: User to follow.
         content:
@@ -339,6 +344,11 @@ paths:
           description: The username of the user to unfollow.
           required: true
           schema: { $ref: "#/components/schemas/Username"}
+        - name: token
+          in: query
+          description: The token for the authentication method.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
       responses:
         "204":
           description: User succesfully unfollowed
@@ -366,6 +376,11 @@ paths:
           description: The identifier of the user who want to ban.
           required: true
           schema: { $ref: "#/components/schemas/Id"}
+        - name: token
+          in: query
+          description: The token for the authentication method.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
       requestBody:
         description: User to ban.
         content:
@@ -405,6 +420,11 @@ paths:
           description: The username of the user unbanned.
           required: true
           schema: { $ref: "#/components/schemas/Username"}
+        - name: token
+          in: query
+          description: The token for the authentication method.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
       responses:
         "204":
           description: User succesfully unfollowed
@@ -433,11 +453,11 @@ paths:
           Get the profile of a user.
           The user must be already logged in. 
         parameters: 
-        - name: userId
+        - name: token
           in: query
-          description: The identifier of the user.
+          description: The token for the authentication method.
           required: true
-          schema: { $ref: "#/components/schemas/Id" } 
+          schema: { $ref: "#/components/schemas/Id" }
         responses:
           "200":
             description: User succesfully found
@@ -461,11 +481,11 @@ paths:
           The username must be unique.
           The user must be already logged in.   
         parameters: 
-        - name: userId
+        - name: token
           in: query
-          description: The identifier of the user.
+          description: The token for the authentication method.
           required: true
-          schema: { $ref: "#/components/schemas/Id" } 
+          schema: { $ref: "#/components/schemas/Id" }
         requestBody:
           description: New username
           content:
@@ -497,6 +517,11 @@ paths:
           description: The identifier of the user.
           required: true
           schema: { $ref: "#/components/schemas/Id"}
+        - name: token
+          in: query
+          description: The token for the authentication method.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
         - name: range
           in: query
           description: max number of photos in the returned list
@@ -534,6 +559,12 @@ paths:
         Like a photo.
         The user must be already logged in.
       operationId: likePhoto
+      parameters:
+        - name: token
+          in: query
+          description: The token for the authentication method.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
       requestBody:
         description: Photo and description
         required: true
@@ -580,9 +611,9 @@ paths:
           description: The identifier of the like
           required: true
           schema: { $ref: "#/components/schemas/Id" }
-        - name: userId
+        - name: token
           in: query
-          description: The identifier of the user who want to unlike.
+          description: The token for the authentication method.
           required: true
           schema: { $ref: "#/components/schemas/Id" } 
       responses:
@@ -604,6 +635,12 @@ paths:
         Comment a photo.
         The user must be already logged in.
       operationId: commentPhoto
+      parameters:
+        - name: token
+          in: query
+          description: The token for the authentication method.
+          required: true
+          schema: { $ref: "#/components/schemas/Id" }
       requestBody:
         description: Photo and description
         required: true
@@ -651,9 +688,9 @@ paths:
           description: The identifier of the comment
           required: true
           schema: { $ref: "#/components/schemas/Id" }
-        - name: userId
+        - name: token
           in: query
-          description: The identifier of the user who want to delete the comment.
+          description: The token for the authentication method.
           required: true
           schema: { $ref: "#/components/schemas/Id" } 
       responses:

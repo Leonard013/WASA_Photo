@@ -31,9 +31,9 @@ func (rt *_router) createSession(w http.ResponseWriter, r *http.Request, ps http
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		ctx.Logger.Info("User $1 created", username)
+		ctx.Logger.Info("User ", username, " created")
 	}
-	rt.baseLogger.Debug("User $1 logged in", username)
+	ctx.Logger.Info("User ", username, " logged in")
 	user := User{
 		Username: username,
 		UserId:   id,
