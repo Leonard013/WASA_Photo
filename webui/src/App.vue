@@ -25,21 +25,21 @@ export default {}
 						<li class="nav-item">
 							<RouterLink to="/" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#home"/></svg>
-								Home
+								All Games
 							</RouterLink>
 						</li>
 						<li class="nav-item">
 							<RouterLink to="/link1" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#layout"/></svg>
-								Menu item 1
+								Play
 							</RouterLink>
 						</li>
-						<li class="nav-item">
+						<!-- <li class="nav-item">
 							<RouterLink to="/link2" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#key"/></svg>
 								Menu item 2
 							</RouterLink>
-						</li>
+						</li> -->
 					</ul>
 
 					<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">

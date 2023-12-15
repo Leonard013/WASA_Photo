@@ -46,6 +46,8 @@ type AppDatabase interface {
 	CreateId(category string) (string, error)
 	IfBanned(id string, username string) error
 	Follow(profileId string, followedId string) error
+	Unfollow(profileId string, followedId string) error
+	CheckToken(token string) error
 
 	Ping() error
 }

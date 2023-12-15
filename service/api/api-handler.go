@@ -11,9 +11,37 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/", rt.getHelloWorld)
 	rt.router.GET("/context", rt.wrap(rt.getContextReply))
 
-	rt.router.POST("/session", rt.wrap(rt.createSession)) // doLogin
-	rt.router.GET("/users/:username", rt.getUser)         // getUserProfile
-	rt.router.POST("/follow/", rt.wrap(rt.followUser))    // followUser
+	// doLogin
+	rt.router.POST("/session", rt.wrap(rt.createSession))
+
+	// uploadPhoto
+
+	// deletePhoto
+
+	// followUser
+	rt.router.POST("/follow/", rt.wrap(rt.followUser))
+
+	// unfollowUser
+	rt.router.DELETE("/follow/:username", rt.wrap(rt.unfollowUser))
+
+	// banUser
+
+	// unbanUser
+
+	// getUserProfile
+	rt.router.GET("/users/:username", rt.getUser)
+
+	// setProfilePhoto
+
+	// getMyStream
+
+	// likePhoto
+
+	// unlikePhoto
+
+	// commentPhoto
+
+	// uncommentPhoto
 
 	rt.router.GET("/liveness", rt.liveness)
 	return rt.router

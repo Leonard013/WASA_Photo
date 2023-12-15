@@ -11,5 +11,8 @@ func (db *appdbimpl) Follow(profileId string, followedId string) error {
 
 	}
 	_, err = db.c.Exec("INSERT INTO Follow (profileId, followedId) VALUES (?, ?)", profileId, followedId)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
