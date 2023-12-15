@@ -48,6 +48,9 @@ type AppDatabase interface {
 	Follow(profileId string, followedId string) error
 	Unfollow(profileId string, followedId string) error
 	CheckToken(token string) error
+	Ban(bannerId string, bannedId string) error
+	Unban(bannerId string, bannedId string) error
+	SetUsername(username string, userId string) error
 
 	Ping() error
 }

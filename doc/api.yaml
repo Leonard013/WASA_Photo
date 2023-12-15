@@ -415,7 +415,7 @@ paths:
       parameters:
         - name: userId
           in: query
-          description: The identifier of the user who want to unban.
+          description: The identifier of the user who want to unban another user.
           required: true
           schema: { $ref: "#/components/schemas/Id"}
         - name: username
@@ -489,6 +489,11 @@ paths:
           description: The token for the authentication method.
           required: true
           schema: { $ref: "#/components/schemas/Id" }
+        - name: userId
+          in: query
+          description: The identifier of the user used as a form of authentication.
+          required: true
+          schema: { $ref: "#/components/schemas/Id"}
         requestBody:
           description: New username
           content:

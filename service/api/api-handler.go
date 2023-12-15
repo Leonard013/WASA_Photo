@@ -25,13 +25,16 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/follow/:username", rt.wrap(rt.unfollowUser))
 
 	// banUser
+	rt.router.POST("/ban/", rt.wrap(rt.banUser))
 
 	// unbanUser
+	rt.router.DELETE("/ban/:username", rt.wrap(rt.unbanUser))
 
 	// getUserProfile
-	rt.router.GET("/users/:username", rt.getUser)
+	rt.router.GET("/users/:username", rt.wrap(rt.getUser))
 
-	// setProfilePhoto
+	// setUsername
+	rt.router.PUT("/users/:username", rt.wrap(rt.setUsername))
 
 	// getMyStream
 

@@ -25,6 +25,9 @@ func (rt *_router) createSession(w http.ResponseWriter, r *http.Request, ps http
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		if len(username) > 20 || len(username) < 3 {
+			w.WriteHeader(http.StatusBadRequest)
+		}
 		err = rt.db.AddUser(id, username)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
