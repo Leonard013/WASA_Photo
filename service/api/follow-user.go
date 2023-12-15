@@ -12,11 +12,12 @@ import (
 // The user must be already logged in.
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
-	// token := r.URL.Query().Get("token")
-	// if rt.db.CheckToken(token) != nil {
-	// 	w.WriteHeader(http.StatusForbidden)
-	// 	return
-	// }
+	token := r.URL.Query().Get("token")
+	err := rt.db.CheckToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
 
 	r.ParseForm()
 	username := r.FormValue("username")

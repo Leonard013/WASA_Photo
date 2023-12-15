@@ -11,6 +11,12 @@ import (
 // The user must be already logged in.
 func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
+	token := r.URL.Query().Get("token")
+	err := rt.db.CheckToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
 
 	username := ps.ByName("username")
 	id, err := rt.db.GetUserId(username)

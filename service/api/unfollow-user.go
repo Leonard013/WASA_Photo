@@ -13,7 +13,8 @@ import (
 func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	token := r.URL.Query().Get("token")
-	if rt.db.CheckToken(token) != nil {
+	err := rt.db.CheckToken(token)
+	if err != nil {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
