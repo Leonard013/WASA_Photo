@@ -23,7 +23,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	r.ParseForm()
+	_ = r.ParseForm()
 	username := r.FormValue("username")
 	bannerId := r.FormValue("userId")
 	bannedId, err := rt.db.GetUserId(username)

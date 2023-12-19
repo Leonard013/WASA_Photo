@@ -80,7 +80,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		Title:     title,
 		PhotoPath: path,
 		Date:      t,
-		UserId:    userId,
+		Author:    userId,
 	})
 
 }

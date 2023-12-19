@@ -58,8 +58,10 @@ type AppDatabase interface {
 	CreatePhotoId() (string, error)
 	DeletePhoto(photoId string, userId string) (string, error)
 	PutLike(photoId string, userId string) (string, error)
-	// RemoveLike(photoId string, LikeId string, userId string) error
 	CreateLikeId() (string, error)
+	Unlike(photoId string, userId string) error
+	Comment(photoId string, userId string, text string, t string) (string, error)
+	Uncomment(commentId string, userId string) error
 	// CreateCommentId() (string, error)
 	// Comment(photoId string, userId string, text string, time string) error
 	// RemoveComment(commentId string, photoId string, userId string) error

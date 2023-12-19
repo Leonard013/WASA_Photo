@@ -11,7 +11,7 @@ import (
 
 // Upload a photo.
 // The user must be already logged in.
-func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	token := r.URL.Query().Get("token")
 	err := rt.db.CheckToken(token)
@@ -37,7 +37,7 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-	r.ParseForm()
+	_ = r.ParseForm()
 	username = r.FormValue("username")
 	if len(username) > 20 || len(username) < 3 {
 		w.WriteHeader(http.StatusBadRequest)

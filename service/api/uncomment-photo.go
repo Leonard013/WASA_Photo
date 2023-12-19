@@ -11,7 +11,7 @@ import (
 
 // Upload a photo.
 // The user must be already logged in.
-func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	token := r.URL.Query().Get("token")
 	err := rt.db.CheckToken(token)
@@ -23,19 +23,21 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	_ = r.ParseForm()
-	username := r.FormValue("username")
-	userId := r.FormValue("userId")
-	followedId, err := rt.db.GetUserId(username)
-	if err != nil && err == sql.ErrNoRows {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	} else if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	commentId := ps.ByName("commentId")     // the user to unban
+	photoId := r.URL.Query().Get("photoId") // the user to unban
+	userId := r.URL.Query().Get("userId")
+
+	authorId, err := rt.db.GetAuthorId(photoId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			w.WriteHeader(http.StatusNotFound)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 
-	err = rt.db.IfBanned(followedId, userId) // check if it is blocked
+	err = rt.db.IfBanned(authorId, userId) // check if it is blocked
 	if err != nil && err != sql.ErrNoRows {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -44,10 +46,10 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	err = rt.db.Follow(userId, followedId)
+	err = rt.db.Uncomment(commentId, userId)
 	if err != nil {
-		if err.Error() == "already following" {
-			w.WriteHeader(http.StatusForbidden)
+		if err == sql.ErrNoRows {
+			w.WriteHeader(http.StatusNotFound)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
@@ -55,15 +57,14 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	name, err := rt.db.GetUsername(userId)
-	if err != nil {
+	if err != nil && err == sql.ErrNoRows {
 		w.WriteHeader(http.StatusNotFound)
+		return
+	} else if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	ctx.Logger.Info("User ", name, " followed ", username)
-	user := User{
-		Username: username,
-		UserId:   followedId,
-	}
-	_ = json.NewEncoder(w).Encode(user)
+	ctx.Logger.Info("User ", name, " uncomments photo  ", photoId)
+	_ = json.NewEncoder(w).Encode("Photo successfully uncommented")
 }

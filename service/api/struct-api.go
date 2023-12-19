@@ -27,13 +27,13 @@ type Photo struct { // Photo represents a photo
 	Title     string `json:"title,omitempty"`
 	PhotoPath string `json:"photoPath"`
 	Date      string `json:"date"`
-	UserId    string `json:"userId"`
+	Author    string `json:"userId"`
 }
 
 type Comment struct { // Comment represents a comment
 	PhotoId   string `json:"photoId"`
 	CommentId string `json:"commentId"`
-	UserId    string `json:"userId"`
+	Author    string `json:"userId"`
 	Text      string `json:"text"`
 	Date      string `json:"date"`
 }
@@ -41,7 +41,7 @@ type Comment struct { // Comment represents a comment
 type Like struct { // Like represents a like
 	LikeId  string `json:"likeId"`
 	PhotoId string `json:"photoId"`
-	UserId  string `json:"userId"`
+	Author  string `json:"userId"`
 }
 
 func SavePhoto(file multipart.File, id string) (string, error) {

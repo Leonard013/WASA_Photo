@@ -42,7 +42,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-	ctx.Logger.Info("User ", bannerId, " unbanning ", username)
+
 	err = rt.db.Unban(bannerId, unbanId)
 	if err != nil {
 		if err != nil && err == sql.ErrNoRows {
@@ -52,7 +52,6 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 		}
 		return
 	}
-	ctx.Logger.Info("all good")
 
 	name, err := rt.db.GetUsername(bannerId)
 	if err != nil && err == sql.ErrNoRows {

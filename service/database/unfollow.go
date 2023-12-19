@@ -15,8 +15,6 @@ func (db *appdbimpl) Unfollow(profileId string, followedId string) error {
 
 	} else if err != nil && err != sql.ErrNoRows {
 		// An error occurred other than sql.ErrNoRows
-		fmt.Println("error in unfollow")
-		fmt.Println(err)
 		return err
 	}
 	fmt.Println("1")

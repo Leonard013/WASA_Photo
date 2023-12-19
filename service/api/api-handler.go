@@ -11,7 +11,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/liveness", rt.liveness)
 
 	// doLogin
-	rt.router.POST("/session", rt.wrap(rt.createSession))
+	rt.router.POST("/session", rt.wrap(rt.doLogin))
 
 	// uploadPhoto
 	rt.router.POST("/photos/", rt.wrap(rt.uploadPhoto))
@@ -34,8 +34,8 @@ func (rt *_router) Handler() http.Handler {
 	// getUserProfile
 	rt.router.GET("/users/:username", rt.wrap(rt.getUser))
 
-	// setUsername
-	rt.router.PUT("/users/:username", rt.wrap(rt.setUsername))
+	// setMyUserName
+	rt.router.PUT("/users/:username", rt.wrap(rt.setMyUserName))
 
 	// getMyStream
 
@@ -43,10 +43,13 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/likes/", rt.wrap(rt.likePhoto))
 
 	// unlikePhoto
+	rt.router.DELETE("/likes/:photoId", rt.wrap(rt.unlikePhoto))
 
 	// commentPhoto
+	rt.router.POST("/comments/", rt.wrap(rt.commentPhoto))
 
 	// uncommentPhoto
+	rt.router.DELETE("/comments/:commentId", rt.wrap(rt.uncommentPhoto))
 
 	return rt.router
 }

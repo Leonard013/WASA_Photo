@@ -612,7 +612,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /likes/{likeId}: #unlikePhoto
+  /likes/{photoId}: #unlikePhoto
     delete: 
       tags: ["like"]
       summary: Unlike a photo.
@@ -621,9 +621,9 @@ paths:
         The user must be already logged in.
       operationId: unlikePhoto
       parameters:
-        - name: likeId
+        - name: photoId
           in: path
-          description: The identifier of the like
+          description: The identifier of the photoId to unlike
           required: true
           schema: { $ref: "#/components/schemas/Id" }
         - name: token
@@ -631,6 +631,11 @@ paths:
           description: The token for the authentication method.
           required: true
           schema: { $ref: "#/components/schemas/Id" } 
+        - name: userId
+          in: query
+          description: The identifier of the user used as a form of authentication.
+          required: true
+          schema: { $ref: "#/components/schemas/Id"}
       responses:
         "204":
           description: Photo succesfully unliked
@@ -709,6 +714,11 @@ paths:
           description: The token for the authentication method.
           required: true
           schema: { $ref: "#/components/schemas/Id" } 
+        - name: userId
+          in: query
+          description: The identifier of the user used as a form of authentication.
+          required: true
+          schema: { $ref: "#/components/schemas/Id"}
       responses:
         "204":
           description: Comment succesfully deleted"

@@ -11,10 +11,10 @@ import (
 // If the use does not exist, it will be created,
 // and an identifier is returned.
 // If the user already exists, the identifier is returned.
-func (rt *_router) createSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("Content-Type", "application/json")
 
-	r.ParseForm()
+	_ = r.ParseForm()
 	username := r.FormValue("username")
 
 	id, err := rt.db.GetUserId(username)
