@@ -308,6 +308,7 @@ paths:
          application/json:
             schema:
               type: object
+              description: User to follow
               properties:
                 userId:
                   $ref: "#/components/schemas/Id"
@@ -388,6 +389,7 @@ paths:
           application/json:
             schema:
               type: object
+              description: Username to ban and userId of the user who is banning
               properties:
                 username:
                   $ref: "#/components/schemas/Username"
@@ -555,7 +557,7 @@ paths:
                 type: array
                 minItems: 0
                 maxItems: 100
-                items: { $ref: "#/components/schemas/Photo" }
+                items: { $ref: "#/components/schemas/File" }
         "404":
           description: |
             Users not found, maybe deleted the account
@@ -589,8 +591,8 @@ paths:
               maxItems: 2
               description: Photo and author
               items:
-                type: string
-                description: Photo and author
+                type: object
+                description: photoId and authorId
                 properties:
                   photoId:
                     $ref: "#/components/schemas/Id"
@@ -665,7 +667,8 @@ paths:
               maxItems: 3
               description: Photo, author and text
               items:
-                type: string
+                type: object
+                description: photoId, authorId and text
                 properties:
                   photoId:
                     $ref: "#/components/schemas/Id"
