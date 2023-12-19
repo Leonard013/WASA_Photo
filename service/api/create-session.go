@@ -19,16 +19,10 @@ func (rt *_router) createSession(w http.ResponseWriter, r *http.Request, ps http
 
 	id, err := rt.db.GetUserId(username)
 	if err != nil {
-		// Create new user
-		id, err = rt.db.CreateId("Users")
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
 		if len(username) > 20 || len(username) < 3 {
 			w.WriteHeader(http.StatusBadRequest)
 		}
-		err = rt.db.AddUser(id, username)
+		id, err = rt.db.AddUser(username)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return

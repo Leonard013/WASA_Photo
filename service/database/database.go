@@ -39,11 +39,15 @@ import (
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 	GetUsername(id string) (string, error)
+	GetUserId(id string) (string, error)
+	GetAuthorId(photoId string) (string, error)
+
+	AddUser(username string) (string, error)
+	UploadPhoto(photoId string, title string, photoPath string, userId string, time string) error
+
 	SetName(name string) error
 
-	GetUserId(id string) (string, error)
-	AddUser(id string, username string) error
-	CreateId(category string) (string, error)
+	CreateUserId() (string, error)
 	IfBanned(id string, username string) error
 	Follow(profileId string, followedId string) error
 	Unfollow(profileId string, followedId string) error
@@ -51,6 +55,14 @@ type AppDatabase interface {
 	Ban(bannerId string, bannedId string) error
 	Unban(bannerId string, bannedId string) error
 	SetUsername(username string, userId string) error
+	CreatePhotoId() (string, error)
+	DeletePhoto(photoId string, userId string) (string, error)
+	PutLike(photoId string, userId string) (string, error)
+	// RemoveLike(photoId string, LikeId string, userId string) error
+	CreateLikeId() (string, error)
+	// CreateCommentId() (string, error)
+	// Comment(photoId string, userId string, text string, time string) error
+	// RemoveComment(commentId string, photoId string, userId string) error
 
 	Ping() error
 }

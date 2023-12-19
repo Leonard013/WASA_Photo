@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 
@@ -14,27 +15,34 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("content-type", "application/json")
 	token := r.URL.Query().Get("token")
 	err := rt.db.CheckToken(token)
-	if err != nil {
+	if err == sql.ErrNoRows {
 		w.WriteHeader(http.StatusForbidden)
+		return
+	} else if err != nil && err != sql.ErrNoRows {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	username := ps.ByName("username")
-	if len(username) > 20 || len(username) < 3 {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
 	userId := r.URL.Query().Get("userId")
-
-	if u, err := rt.db.GetUserId(username); err != nil { // check if the user has the right to change the username
+	u, err := rt.db.GetUserId(username)
+	if err != nil && err == sql.ErrNoRows {
 		w.WriteHeader(http.StatusNotFound)
 		return
-	} else if u != userId {
+	} else if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if userId != u {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 	r.ParseForm()
 	username = r.FormValue("username")
+	if len(username) > 20 || len(username) < 3 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	err = rt.db.SetUsername(username, userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

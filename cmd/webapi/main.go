@@ -88,6 +88,7 @@ func run() error {
 		logger.WithError(err).Error("error opening SQLite DB")
 		return fmt.Errorf("opening SQLite: %w", err)
 	}
+
 	defer func() {
 		logger.Debug("database stopping")
 		_ = dbconn.Close()

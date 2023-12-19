@@ -6,17 +6,18 @@ import (
 
 // Handler returns an instance of httprouter.Router that handle APIs registered here
 func (rt *_router) Handler() http.Handler {
-	// Register routes
-	// Register routes
 	rt.router.GET("/", rt.getHelloWorld)
 	rt.router.GET("/context", rt.wrap(rt.getContextReply))
+	rt.router.GET("/liveness", rt.liveness)
 
 	// doLogin
 	rt.router.POST("/session", rt.wrap(rt.createSession))
 
 	// uploadPhoto
+	rt.router.POST("/photos/", rt.wrap(rt.uploadPhoto))
 
 	// deletePhoto
+	rt.router.DELETE("/photos/:photoId", rt.wrap(rt.deletePhoto))
 
 	// followUser
 	rt.router.POST("/follow/", rt.wrap(rt.followUser))
@@ -39,6 +40,7 @@ func (rt *_router) Handler() http.Handler {
 	// getMyStream
 
 	// likePhoto
+	rt.router.POST("/likes/", rt.wrap(rt.likePhoto))
 
 	// unlikePhoto
 
@@ -46,6 +48,5 @@ func (rt *_router) Handler() http.Handler {
 
 	// uncommentPhoto
 
-	rt.router.GET("/liveness", rt.liveness)
 	return rt.router
 }

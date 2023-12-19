@@ -1,5 +1,12 @@
 package api
 
+import (
+	"errors"
+	"io"
+	"mime/multipart"
+	"os"
+)
+
 var Users = make(map[string]User)              // Users is a map of users
 var UsersFollowers = make(map[string][]string) // UsersFollowers is a map of users' followers
 var UsersFollowing = make(map[string][]string) // UsersFollowing is a map of users' following
@@ -35,4 +42,38 @@ type Like struct { // Like represents a like
 	LikeId  string `json:"likeId"`
 	PhotoId string `json:"photoId"`
 	UserId  string `json:"userId"`
+}
+
+func SavePhoto(file multipart.File, id string) (string, error) {
+	fileData, err := io.ReadAll(file)
+	if err != nil {
+		return "", errors.New("error reading file")
+	}
+
+	// Specify the directory to save the file
+	uploadPath := "/Users/leonardoscappatura/Documents/GitHub/WASA/photos"
+
+	// Create/Open the file
+	filePath := uploadPath + "/" + id + ".png"
+	newFile, err := os.Create(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer newFile.Close()
+
+	// Write the file data
+	_, err = newFile.Write(fileData)
+	if err != nil {
+		return "", err
+	}
+
+	return filePath, nil
+}
+
+func DeletePhoto(path string) error {
+	err := os.Remove(path)
+	if err != nil {
+		return err
+	}
+	return nil
 }

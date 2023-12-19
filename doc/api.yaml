@@ -272,6 +272,11 @@ paths:
           description: The token for the authentication method.
           required: true
           schema: { $ref: "#/components/schemas/Id" }
+        - name: userId
+          in: query
+          description: The identifier of the user used as a form of authentication.
+          required: true
+          schema: { $ref: "#/components/schemas/Id"}
       responses:
         "204":
           description: "photo succesfully deleted"
