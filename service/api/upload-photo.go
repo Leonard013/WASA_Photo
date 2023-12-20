@@ -69,6 +69,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	t := time.Now().Format("2006-01-02 15:04:05")
+
 	err = rt.db.UploadPhoto(id, title, path, userId, t)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

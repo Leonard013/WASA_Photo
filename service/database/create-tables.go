@@ -28,7 +28,7 @@ func CreateTables(db *sql.DB) error {
 			photoPath TEXT NOT NULL,
 			date TEXT NOT NULL,
 			author TEXT NOT NULL,
-			FOREIGN KEY (author) REFERENCES User(userId) ON DELETE CASCADE
+			FOREIGN KEY (author) REFERENCES Users(userId) ON DELETE CASCADE
 		);
 	`)
 	if err != nil {
@@ -41,8 +41,8 @@ func CreateTables(db *sql.DB) error {
 			likeId TEXT NOT NULL PRIMARY KEY,
 			photoId TEXT NOT NULL,
 			author TEXT NOT NULL,
-			FOREIGN KEY (photoId) REFERENCES Photo(photoId) ON DELETE CASCADE,
-			FOREIGN KEY (author) REFERENCES User(userId) ON DELETE CASCADE
+			FOREIGN KEY (photoId) REFERENCES Photos(photoId) ON DELETE CASCADE,
+			FOREIGN KEY (author) REFERENCES Users(userId) ON DELETE CASCADE
 		);
 	`)
 	if err != nil {
@@ -57,8 +57,8 @@ func CreateTables(db *sql.DB) error {
 			author TEXT NOT NULL,
 			text TEXT,
 			date TEXT,
-			FOREIGN KEY (photoId) REFERENCES Photo(photoId) ON DELETE CASCADE,
-			FOREIGN KEY (author) REFERENCES User(userId) ON DELETE CASCADE
+			FOREIGN KEY (photoId) REFERENCES Photos(photoId) ON DELETE CASCADE,
+			FOREIGN KEY (author) REFERENCES Users(userId) ON DELETE CASCADE
 		);
 	`)
 	if err != nil {
@@ -71,8 +71,8 @@ func CreateTables(db *sql.DB) error {
 			profileId TEXT NOT NULL,
 			followedId TEXT NOT NULL,
 			PRIMARY KEY (profileId, followedId),
-			FOREIGN KEY (profileId) REFERENCES User(userId) ON DELETE CASCADE,
-			FOREIGN KEY (followedId) REFERENCES User(userId) ON DELETE CASCADE
+			FOREIGN KEY (profileId) REFERENCES Users(userId) ON DELETE CASCADE,
+			FOREIGN KEY (followedId) REFERENCES Users(userId) ON DELETE CASCADE
 		);
 	`)
 	if err != nil {
@@ -85,8 +85,8 @@ func CreateTables(db *sql.DB) error {
 			bannerId TEXT NOT NULL,
 			bannedId TEXT NOT NULL,
 			PRIMARY KEY (bannedId, bannerId),
-			FOREIGN KEY (bannedId) REFERENCES User(userId) ON DELETE CASCADE,
-			FOREIGN KEY (bannerId) REFERENCES User(userId) ON DELETE CASCADE
+			FOREIGN KEY (bannedId) REFERENCES Users(userId) ON DELETE CASCADE,
+			FOREIGN KEY (bannerId) REFERENCES Users(userId) ON DELETE CASCADE
 		);
 	`)
 	if err != nil {

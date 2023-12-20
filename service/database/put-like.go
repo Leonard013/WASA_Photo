@@ -11,8 +11,16 @@ func (db *appdbimpl) PutLike(photoId string, userId string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	var dummy string
+	err = db.c.QueryRow("SELECT photoId FROM Photos WHERE photoId=?", photoId).Scan(&dummy)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", errors.New("photo not found")
+		} else {
+			return "", err
+		}
+	}
+
 	err = db.c.QueryRow("SELECT likeId FROM Likes WHERE photoId=? AND author=?", photoId, userId).Scan(&dummy)
 	if err != nil && err != sql.ErrNoRows {
 		// An error occurred during the query, return it

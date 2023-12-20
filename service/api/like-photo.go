@@ -50,6 +50,8 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	if err != nil {
 		if err.Error() == "already liked" {
 			w.WriteHeader(http.StatusForbidden)
+		} else if err.Error() == "photo not found" {
+			w.WriteHeader(http.StatusNotFound)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 		}

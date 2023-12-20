@@ -17,25 +17,11 @@ func (db *appdbimpl) DeletePhoto(photoId string, userId string) (string, error) 
 		return "", errors.New("already deleted")
 	}
 
-	// var author, path string
-	// err = db.c.QueryRow("SELECT author,photoPath FROM Photos WHERE photoId=?", photoId).Scan(&author, &path)
-	// if err != nil {
-	// 	return "", err
-	// }
-
 	if author != userId {
 		// forbidden
 		return "", errors.New("not your photo")
 	}
 
 	_, err = db.c.Exec("DELETE FROM Photos WHERE photoId=? AND author=?", photoId, userId)
-	// _, err = db.c.Exec("DELETE FROM Likes WHERE photoId=?", photoId)
-	// if err != nil {
-	// 	return "", err
-	// }
-	// _, err = db.c.Exec("DELETE FROM Comments WHERE photoId=?", photoId)
-	// if err != nil {
-	// 	return "", err
-	// }
 	return path, err
 }
