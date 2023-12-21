@@ -16,7 +16,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	_ = r.ParseForm()
 	username := r.FormValue("username")
-
+	ctx.Logger.Info("Auth: ", r.Header.Get("Authorization"))
 	id, err := rt.db.GetUserId(username)
 	if err != nil {
 		if len(username) > 20 || len(username) < 3 {

@@ -45,6 +45,7 @@ components:
         Username:
           type: string
           description: The username of the user.
+          example: "mario"
           readOnly: True
           pattern: '^.*$'
           minLength: 3
@@ -178,12 +179,7 @@ paths:
         description: User details
         content:
           application/json:
-            schema:
-              type: object
-              description: User details
-              properties:
-                username:
-                  $ref: "#/components/schemas/Username"
+            schema: { $ref: "#/components/schemas/Username" }
         required: true
 
       responses:
@@ -191,14 +187,8 @@ paths:
           description: User created
           content:
             application/json:  
-              schema:
-                type: object 
-                description: User details
-                properties:
-                  userId:
-                    $ref: "#/components/schemas/Id"
-                  username:
-                    $ref: "#/components/schemas/Username"
+              schema: { $ref: "#/components/schemas/User" }
+
         '200': # return the user
           description: User already exists 
           content:
@@ -537,16 +527,6 @@ paths:
           description: The token for the authentication method.
           required: true
           schema: { $ref: "#/components/schemas/Id" }
-        - name: range
-          in: query
-          description: max number of photos in the returned list
-          required: false
-          schema:
-            description: max and min number of photos in the returned list
-            type: integer
-            minimum: 1
-            maximum: 25
-            default: 25
       responses:
         "200":
           description: Stream succesfully returned
@@ -556,7 +536,7 @@ paths:
                 description: Stream of photos
                 type: array
                 minItems: 0
-                maxItems: 100
+                maxItems: 20
                 items: { $ref: "#/components/schemas/File" }
         "404":
           description: |

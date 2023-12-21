@@ -62,9 +62,7 @@ type AppDatabase interface {
 	Unlike(photoId string, userId string) error
 	Comment(photoId string, userId string, text string, t string) (string, error)
 	Uncomment(commentId string, userId string) error
-	// CreateCommentId() (string, error)
-	// Comment(photoId string, userId string, text string, time string) error
-	// RemoveComment(commentId string, photoId string, userId string) error
+	GetStream(userId string) ([][]byte, error)
 
 	Ping() error
 }
