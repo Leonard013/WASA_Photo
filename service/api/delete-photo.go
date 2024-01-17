@@ -13,7 +13,8 @@ import (
 // The user must be already logged in.
 func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
-	token := r.URL.Query().Get("token")
+	_ = r.ParseForm()
+	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
 	if err == sql.ErrNoRows {
 		w.WriteHeader(http.StatusForbidden)
@@ -24,7 +25,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	photoId := ps.ByName("photoId") // the photo to delete
-	userId := r.URL.Query().Get("userId")
+	userId := r.Header.Get("userId")
 
 	path, err := rt.db.DeletePhoto(photoId, userId)
 	if err != nil {

@@ -13,7 +13,8 @@ import (
 // The user must be already logged in.
 func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
-	token := r.URL.Query().Get("token")
+	_ = r.ParseForm()
+	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
 	if err == sql.ErrNoRows {
 		w.WriteHeader(http.StatusForbidden)
@@ -33,7 +34,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	bannerId := r.URL.Query().Get("userId")
+	bannerId := r.Header.Get("userId")
 	err = rt.db.IfBanned(unbanId, bannerId) // check if it is blocked
 	if err != nil && err != sql.ErrNoRows {
 		w.WriteHeader(http.StatusInternalServerError)

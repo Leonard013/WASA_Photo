@@ -13,7 +13,8 @@ import (
 // The user must be already logged in.
 func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
-	token := r.URL.Query().Get("token")
+	_ = r.ParseForm()
+	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
 	if err == sql.ErrNoRows {
 		w.WriteHeader(http.StatusForbidden)
@@ -23,9 +24,9 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	commentId := ps.ByName("commentId")     // the user to unban
-	photoId := r.URL.Query().Get("photoId") // the user to unban
-	userId := r.URL.Query().Get("userId")
+	commentId := ps.ByName("commentId") // the user to unban
+	photoId := r.Header.Get("photoId")  // the user to unban
+	userId := r.Header.Get("userId")
 
 	authorId, err := rt.db.GetAuthorId(photoId)
 	if err != nil {

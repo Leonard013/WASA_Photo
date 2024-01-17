@@ -73,7 +73,6 @@ components:
           minLength: 10
           maxLength: 10
 
-
         Text:
           description: The text of the comment.
           type: string
@@ -87,7 +86,6 @@ components:
           pattern: '^.*?$'
           minLength: 0
           maxLength: 300
-
 
         User:
           title: User

@@ -14,7 +14,7 @@ import (
 // The user must be already logged in.
 func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "multipart/form-data")
-	token := r.URL.Query().Get("token")
+	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
 	if err == sql.ErrNoRows {
 		w.WriteHeader(http.StatusForbidden)
