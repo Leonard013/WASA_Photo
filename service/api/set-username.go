@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/reqcontext"
@@ -16,10 +17,10 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusForbidden)
 		return
-	} else if err != nil && err != sql.ErrNoRows {
+	} else if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -27,10 +28,10 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	username := ps.ByName("username")
 	userId := r.Header.Get("userId")
 	u, err := rt.db.GetUserId(username)
-	if err != nil && err == sql.ErrNoRows {
+	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)
 		return
-	} else if err != nil {
+	} else if !errors.Is(err, nil) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -45,7 +46,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 	err = rt.db.SetUsername(username, userId)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

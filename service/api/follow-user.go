@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/reqcontext"
@@ -16,10 +17,10 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusForbidden)
 		return
-	} else if err != nil && err != sql.ErrNoRows {
+	} else if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -28,25 +29,25 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	username := r.FormValue("username")
 	userId := r.FormValue("userId")
 	followedId, err := rt.db.GetUserId(username)
-	if err != nil && err == sql.ErrNoRows {
+	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)
 		return
-	} else if err != nil {
+	} else if !errors.Is(err, nil) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	err = rt.db.IfBanned(followedId, userId) // check if it is blocked
-	if err != nil && err != sql.ErrNoRows {
+	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	} else if err == nil {
+	} else if errors.Is(err, nil) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
 	err = rt.db.Follow(userId, followedId)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		if err.Error() == "already following" {
 			w.WriteHeader(http.StatusForbidden)
 		} else {
@@ -56,7 +57,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	name, err := rt.db.GetUsername(userId)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

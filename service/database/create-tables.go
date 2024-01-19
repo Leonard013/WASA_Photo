@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -16,7 +17,7 @@ func CreateTables(db *sql.DB) error {
 			UNIQUE(userId)
 		);
 	`)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		return fmt.Errorf("error creating User table: %w", err)
 	}
 
@@ -31,7 +32,7 @@ func CreateTables(db *sql.DB) error {
 			FOREIGN KEY (author) REFERENCES Users(userId) ON DELETE CASCADE
 		);
 	`)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		return fmt.Errorf("error creating Photo table: %w", err)
 	}
 
@@ -45,7 +46,7 @@ func CreateTables(db *sql.DB) error {
 			FOREIGN KEY (author) REFERENCES Users(userId) ON DELETE CASCADE
 		);
 	`)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		return fmt.Errorf("error creating Like table: %w", err)
 	}
 
@@ -61,7 +62,7 @@ func CreateTables(db *sql.DB) error {
 			FOREIGN KEY (author) REFERENCES Users(userId) ON DELETE CASCADE
 		);
 	`)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		return fmt.Errorf("error creating Comment table: %w", err)
 	}
 
@@ -75,7 +76,7 @@ func CreateTables(db *sql.DB) error {
 			FOREIGN KEY (followedId) REFERENCES Users(userId) ON DELETE CASCADE
 		);
 	`)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		return fmt.Errorf("error creating Following table: %w", err)
 	}
 
@@ -89,7 +90,7 @@ func CreateTables(db *sql.DB) error {
 			FOREIGN KEY (bannerId) REFERENCES Users(userId) ON DELETE CASCADE
 		);
 	`)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		return fmt.Errorf("error creating Banned table: %w", err)
 	}
 

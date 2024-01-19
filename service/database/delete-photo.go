@@ -9,10 +9,10 @@ import (
 func (db *appdbimpl) DeletePhoto(photoId string, userId string) (string, error) {
 	var author, path string
 	err := db.c.QueryRow("SELECT author,photoPath FROM Photos WHERE photoId=?", photoId).Scan(&author, &path)
-	if err != nil && err != sql.ErrNoRows {
+	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		// An error occurred during the query, return it
 		return "", err
-	} else if err == sql.ErrNoRows {
+	} else if errors.Is(err, sql.ErrNoRows) {
 		// No error occurred, which means a row was found
 		return "", errors.New("already deleted")
 	}

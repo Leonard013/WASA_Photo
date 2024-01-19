@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/reqcontext"
@@ -16,10 +17,10 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusForbidden)
 		return
-	} else if err != nil && err != sql.ErrNoRows {
+	} else if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -28,7 +29,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	userId := r.Header.Get("userId")
 
 	path, err := rt.db.DeletePhoto(photoId, userId)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		if err.Error() == "already deleted" {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -42,7 +43,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	err = DeletePhoto(path)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/reqcontext"
@@ -16,10 +17,10 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusForbidden)
 		return
-	} else if err != nil && err != sql.ErrNoRows {
+	} else if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -29,8 +30,8 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	userId := r.Header.Get("userId")
 
 	authorId, err := rt.db.GetAuthorId(photoId)
-	if err != nil {
-		if err == sql.ErrNoRows {
+	if !errors.Is(err, nil) {
+		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -39,17 +40,17 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	err = rt.db.IfBanned(authorId, userId) // check if it is blocked
-	if err != nil && err != sql.ErrNoRows {
+	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	} else if err == nil {
+	} else if errors.Is(err, nil) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
 	err = rt.db.Uncomment(commentId, userId)
-	if err != nil {
-		if err == sql.ErrNoRows {
+	if !errors.Is(err, nil) {
+		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -58,10 +59,10 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	name, err := rt.db.GetUsername(userId)
-	if err != nil && err == sql.ErrNoRows {
+	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)
 		return
-	} else if err != nil {
+	} else if !errors.Is(err, nil) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

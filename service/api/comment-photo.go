@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -16,10 +17,10 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	w.Header().Set("content-type", "multipart/form-data")
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusForbidden)
 		return
-	} else if err != nil && err != sql.ErrNoRows {
+	} else if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -34,8 +35,8 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	authorId, err := rt.db.GetAuthorId(photoId)
-	if err != nil {
-		if err == sql.ErrNoRows {
+	if !errors.Is(err, nil) {
+		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -44,16 +45,16 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	err = rt.db.IfBanned(authorId, userId) // check if it is blocked
-	if err != nil && err != sql.ErrNoRows {
+	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	} else if err == nil {
+	} else if errors.Is(err, nil) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 	t := time.Now().Format("2006-01-02 15:04:05")
 	id, err := rt.db.Comment(photoId, userId, text, t)
-	if err != nil {
+	if !errors.Is(err, nil) {
 		if err.Error() == "photo does not exist" {
 			w.WriteHeader(http.StatusNotFound)
 		} else {
@@ -63,10 +64,10 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	commenter, err := rt.db.GetUsername(userId)
-	if err != nil && err == sql.ErrNoRows {
+	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)
 		return
-	} else if err != nil {
+	} else if !errors.Is(err, nil) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

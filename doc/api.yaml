@@ -506,7 +506,7 @@ paths:
           "401":
             $ref: "#/components/responses/UnauthorizedError"
       
-  /users/{userId}/following: #getMyStream
+  /users/{userId}/following/: #getMyStream
     get:
       tags: ["stream"]
       operationId: getMyStream

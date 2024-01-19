@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/reqcontext"
@@ -19,12 +20,12 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	id, err := rt.db.GetUserId(username)
 
-	if err != nil {
+	if !errors.Is(err, nil) {
 		if len(username) > 20 || len(username) < 3 {
 			w.WriteHeader(http.StatusBadRequest)
 		}
 		id, err = rt.db.AddUser(username)
-		if err != nil {
+		if !errors.Is(err, nil) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

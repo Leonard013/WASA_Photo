@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/reqcontext"
@@ -16,20 +17,21 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusForbidden)
 		return
-	} else if err != nil && err != sql.ErrNoRows {
+	} else if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	username := ps.ByName("username") // the user to unfollow
 	unf_userId, err := rt.db.GetUserId(username)
-	if err != nil && err == sql.ErrNoRows {
+
+	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)
 		return
-	} else if err != nil && err != sql.ErrNoRows {
+	} else if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -37,29 +39,30 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	userId := r.Header.Get("userId")
 
 	err = rt.db.IfBanned(unf_userId, userId) // check if it is blocked
-	if err != nil && err != sql.ErrNoRows {
+
+	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	} else if err == nil {
+	} else if errors.Is(err, nil) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
 	err = rt.db.Unfollow(userId, unf_userId)
-	if err != nil && err == sql.ErrNoRows {
+	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		if err.Error() == "already unfollowed" {
 			w.WriteHeader(http.StatusNotFound)
-		} else if err != nil {
+		} else if !errors.Is(err, nil) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 	}
 
 	name, err := rt.db.GetUsername(userId)
-	if err != nil && err == sql.ErrNoRows {
+	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)
 		return
-	} else if err != nil && err != sql.ErrNoRows {
+	} else if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

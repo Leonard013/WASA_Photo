@@ -80,7 +80,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 
 	// Create tables
-	if err := CreateTables(db); err != nil {
+	if err := CreateTables(db); !errors.Is(err, nil) {
 		return nil, fmt.Errorf("error creating tables: %w", err)
 	}
 
