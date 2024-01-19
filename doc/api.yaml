@@ -506,7 +506,7 @@ paths:
           "401":
             $ref: "#/components/responses/UnauthorizedError"
       
-  /users/{userId}/following/: #getMyStream
+  /stream/{userId}: #getMyStream
     get:
       tags: ["stream"]
       operationId: getMyStream
@@ -525,6 +525,7 @@ paths:
           description: The token for the authentication method.
           required: true
           schema: { $ref: "#/components/schemas/Id" }
+
       responses:
         "200":
           description: Stream succesfully returned
