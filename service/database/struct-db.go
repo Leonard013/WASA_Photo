@@ -1,16 +1,16 @@
 package database
 
-// // var Users = make(map[string]User)
+import (
+	"os"
+	"time"
+)
 
-// var streams []stream_reminder
+var images_stream = make(map[string][]PhotoForStream)
 
-// type stream_reminder struct {
-// 	UserId         string   `json:"userId"`
-// 	Counter        int      `json:"counter"`
-// 	List_of_Photos [][]byte `json:"list_of_photos"`
-// }
-
-// type Photo struct {
-// 	Image []byte
-// 	Date  time.Time
-// }
+type PhotoForStream struct { // PhotoForStream represents a photo for the stream
+	PhotoId string    `json:"photoId"`
+	Title   string    `json:"title,omitempty"`
+	File    *os.File  `json:"File"`
+	Author  string    `json:"author"`
+	Date    time.Time `json:"date"`
+}

@@ -5,15 +5,16 @@ import (
 	"io"
 	"mime/multipart"
 	"os"
+	"time"
 )
 
 var Users = make(map[string]User)              // Users is a map of users
 var UsersFollowers = make(map[string][]string) // UsersFollowers is a map of users' followers
 var UsersFollowing = make(map[string][]string) // UsersFollowing is a map of users' following
-// var bannedUsers = make(map[string][]string)    // bannedUsers is a map of banned users
-var Photos = make(map[string]Photo)     // Photos is a map of photos
-var Comments = make(map[string]Comment) // Comments is a map of comments
-var Likes = make(map[string]Like)       // Likes is a map of likes
+var Photos = make(map[string]Photo)            // Photos is a map of photos
+var Comments = make(map[string]Comment)        // Comments is a map of comments
+var Likes = make(map[string]Like)              // Likes is a map of likes
+var images_stream = make(map[string][]PhotoForStream)
 
 var UsersCatalog = make(map[string]string) // UsersCatalog is a map of users' usernames and ids
 
@@ -42,6 +43,14 @@ type Like struct { // Like represents a like
 	LikeId  string `json:"likeId"`
 	PhotoId string `json:"photoId"`
 	Author  string `json:"userId"`
+}
+
+type PhotoForStream struct { // PhotoForStream represents a photo for the stream
+	PhotoId string    `json:"photoId"`
+	Title   string    `json:"title,omitempty"`
+	File    *os.File  `json:"File"`
+	Author  string    `json:"author"`
+	Date    time.Time `json:"date"`
 }
 
 func SavePhoto(file multipart.File, id string) (string, error) {

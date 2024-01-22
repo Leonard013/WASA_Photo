@@ -17,7 +17,6 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("content-type", "multipart/form-data")
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
-
 	if errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -77,7 +76,14 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	ctx.Logger.Info("Photo uploaded")
+
+	name, err := rt.db.GetUsername(userId)
+	if !errors.Is(err, nil) {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	ctx.Logger.Info(name, " uploaded a photo")
 	_ = json.NewEncoder(w).Encode(Photo{
 		PhotoId:   id,
 		Title:     title,

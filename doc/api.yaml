@@ -160,6 +160,22 @@ components:
             - text
             - date
 
+        Stream:
+          title: Stream
+          description: Stream of photos of users followed
+          type: object
+          properties:
+            photoId:
+              $ref: "#/components/schemas/Id"
+            title:
+              $ref: "#/components/schemas/Title"
+            file:
+              $ref: "#/components/schemas/File"
+            author:
+              $ref: "#/components/schemas/Id"
+            date:
+              $ref: "#/components/schemas/Date"
+
 security:
   - bearerAuth: []
 
@@ -536,7 +552,7 @@ paths:
                 type: array
                 minItems: 0
                 maxItems: 20
-                items: { $ref: "#/components/schemas/File" }
+                items: { $ref: "#/components/schemas/Stream" }
         "404":
           description: |
             Users not found, maybe deleted the account
