@@ -4,7 +4,7 @@ export default {
 		return {
 			errormsg: null,
 			loading: false,
-			games: null,
+			some_data: null,
 		}
 	},
 	methods: {
@@ -12,18 +12,7 @@ export default {
 			this.loading = true;
 			this.errormsg = null;
 			try {
-				let response = await this.$axios.get("/games");
-				this.some_data = response.data;
-			} catch (e) {
-				this.errormsg = e.toString();
-			}
-			this.loading = false;
-		},
-		async startNewGame() {
-			this.loading = true;
-			this.errormsg = null;
-			try {
-				let response = await this.$axios.post("/games");
+				let response = await this.$axios.get("/");
 				this.some_data = response.data;
 			} catch (e) {
 				this.errormsg = e.toString();
@@ -41,7 +30,7 @@ export default {
 	<div>
 		<div
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<h1 class="h2">HI -LO GAME</h1>
+			<h1 class="h2">Home page</h1>
 			<div class="btn-toolbar mb-2 mb-md-0">
 				<div class="btn-group me-2">
 					<button type="button" class="btn btn-sm btn-outline-secondary" @click="refresh">
@@ -52,8 +41,8 @@ export default {
 					</button>
 				</div>
 				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-primary" @click="startNewGame">
-						New Game
+					<button type="button" class="btn btn-sm btn-outline-primary" @click="newItem">
+						New
 					</button>
 				</div>
 			</div>
@@ -61,10 +50,6 @@ export default {
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 	</div>
-	<ul>
-		<li v-for="game in games">Game# {{game.id}} {{ game.Outcome }} {{ game.Guesses }} </li>
-			
-	</ul>
 </template>
 
 <style>

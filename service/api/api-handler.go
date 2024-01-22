@@ -38,7 +38,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.PUT("/users/:username", rt.wrap(rt.setMyUserName))
 
 	// getMyStream
-	rt.router.GET("/stream/:userId", rt.wrap(rt.getMyStream))
+	rt.router.GET("/streams/:streamId", rt.wrap(rt.getMyStream))
 
 	// likePhoto
 	rt.router.POST("/likes/", rt.wrap(rt.likePhoto))

@@ -7,10 +7,10 @@ import (
 )
 
 // SetName is an example that shows you how to execute insert/update
-func (db *appdbimpl) GetStream(userId string) ([]PhotoForStream, error) {
-	if _, ok := images_stream[userId]; !ok {
+func (db *appdbimpl) GetStream(streamId string) ([]PhotoForStream, error) {
+	if _, ok := images_stream[streamId]; !ok {
 
-		rows, err := db.c.Query("SELECT p.photoId,p.title,p.photoPath,p.date,p.author FROM Photos p WHERE p.author IN (SELECT f.followedId FROM Follow f WHERE f.profileId = ? AND f.followedId NOT IN (SELECT b.bannerId FROM Ban b WHERE b.bannedId = ?))", userId, userId)
+		rows, err := db.c.Query("SELECT p.photoId,p.title,p.photoPath,p.date,p.author FROM Photos p WHERE p.author IN (SELECT f.followedId FROM Follow f WHERE f.profileId = ? AND f.followedId NOT IN (SELECT b.bannerId FROM Ban b WHERE b.bannedId = ?))", streamId, streamId)
 		if !errors.Is(err, nil) {
 			return nil, err
 		}
@@ -47,10 +47,10 @@ func (db *appdbimpl) GetStream(userId string) ([]PhotoForStream, error) {
 				Date:    t,
 			}
 
-			images_stream[userId] = append(images_stream[userId], photo)
+			images_stream[streamId] = append(images_stream[streamId], photo)
 		}
 	}
 
-	return images_stream[userId], nil
+	return images_stream[streamId], nil
 
 }

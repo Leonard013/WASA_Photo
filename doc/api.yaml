@@ -522,7 +522,7 @@ paths:
           "401":
             $ref: "#/components/responses/UnauthorizedError"
       
-  /stream/{userId}: #getMyStream
+  /streams/{streamId}: #getMyStream
     get:
       tags: ["stream"]
       operationId: getMyStream
@@ -531,9 +531,9 @@ paths:
         Get the stream of photos of users followed in reverse
         chronological order.
       parameters:
-        - name: userId
+        - name: streamId
           in: path
-          description: The identifier of the user.
+          description: The identifier of the stream.
           required: true
           schema: { $ref: "#/components/schemas/Id"}
         - name: token
