@@ -14,9 +14,10 @@ import (
 // If the user already exists, the identifier is returned.
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("Content-Type", "application/json")
-
-	_ = r.ParseForm()
-	username := r.FormValue("username")
+	var login Login
+	_ = json.NewDecoder(r.Body).Decode(&login)
+	_ = r.Body.Close()
+	username := login.Username
 
 	id, err := rt.db.GetUserId(username)
 

@@ -18,6 +18,10 @@ var images_stream = make(map[string][]PhotoForStream)
 
 var UsersCatalog = make(map[string]string) // UsersCatalog is a map of users' usernames and ids
 
+type Login struct {
+	Username string `json:"username"`
+}
+
 type User struct { // User represents a user
 	UserId   string `json:"userId"`
 	Username string `json:"username"`
