@@ -25,9 +25,12 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	_ = r.ParseForm()
-	username := r.FormValue("username")
-	userId := r.FormValue("userId")
+	var follow_user Follow_User
+	_ = json.NewDecoder(r.Body).Decode(&follow_user)
+	_ = r.Body.Close()
+	username := follow_user.Username
+	userId := follow_user.USerId
+
 	followedId, err := rt.db.GetUserId(username)
 	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)

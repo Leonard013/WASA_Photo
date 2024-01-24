@@ -22,6 +22,11 @@ type Login struct {
 	Username string `json:"username"`
 }
 
+type Follow_User struct {
+	Username string `json:"username"`
+	USerId   string `json:"userId"`
+}
+
 type User struct { // User represents a user
 	UserId   string `json:"userId"`
 	Username string `json:"username"`
