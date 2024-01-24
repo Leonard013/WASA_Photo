@@ -14,6 +14,11 @@ import (
 // The user must be already logged in.
 func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
+	var new_username Username
+	_ = json.NewDecoder(r.Body).Decode(&new_username)
+	_ = r.Body.Close()
+	username := new_username.Username
+
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
@@ -25,7 +30,6 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	username := ps.ByName("username")
 	userId := r.Header.Get("userId")
 	u, err := rt.db.GetUserId(username)
 	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {

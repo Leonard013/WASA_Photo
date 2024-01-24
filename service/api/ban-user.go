@@ -14,6 +14,12 @@ import (
 // The user must be already logged in.
 func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
+	var follow_user User_Id
+	_ = json.NewDecoder(r.Body).Decode(&follow_user)
+	_ = r.Body.Close()
+	username := follow_user.Username
+	bannerId := follow_user.UserId
+
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
@@ -25,9 +31,6 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	_ = r.ParseForm()
-	username := r.FormValue("username")
-	bannerId := r.FormValue("userId")
 	bannedId, err := rt.db.GetUserId(username)
 	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)

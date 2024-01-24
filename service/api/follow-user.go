@@ -14,6 +14,12 @@ import (
 // The user must be already logged in.
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
+	var follow_user User_Id
+	_ = json.NewDecoder(r.Body).Decode(&follow_user)
+	_ = r.Body.Close()
+	username := follow_user.Username
+	userId := follow_user.UserId
+
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
@@ -24,12 +30,6 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	var follow_user Follow_User
-	_ = json.NewDecoder(r.Body).Decode(&follow_user)
-	_ = r.Body.Close()
-	username := follow_user.Username
-	userId := follow_user.USerId
 
 	followedId, err := rt.db.GetUserId(username)
 	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {

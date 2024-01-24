@@ -14,6 +14,12 @@ import (
 // The user must be already logged in.
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
+	var like phtoId_userId
+	_ = json.NewDecoder(r.Body).Decode(&like)
+	_ = r.Body.Close()
+	photoId := like.PhotoId
+	userId := like.UserId
+
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
@@ -24,10 +30,6 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	_ = r.ParseForm()
-	photoId := r.FormValue("photoId")
-	userId := r.FormValue("userId")
 
 	authorId, err := rt.db.GetAuthorId(photoId)
 	if !errors.Is(err, nil) {
