@@ -1,14 +1,17 @@
 <script>
+
+import { sharedData } from '../main.js';
+
 export default {
 	data: function() {
 		return {
 			errormsg: null,
 			loading: false,
-			regalo: "ghepardo",
 			username: null,
 			name: null,
 			userId: null,
-			some_data: "ghepardo",
+			some_data: null,
+			User: null,
 			count: 0,
 		}
 	},
@@ -19,7 +22,8 @@ export default {
 			this.name = document.getElementById("username").value;
 			try {
 				let response = await this.$axios.post("/session", {username: this.name});
-				this.some_data = response.data;
+				sharedData.User = response.data;
+				console.log(response.data);
 				this.$router.push('/account');
 			} catch (e) {
 				this.errormsg = e.toString();
@@ -50,7 +54,7 @@ export default {
 <template>
 	<div class="container">
 	  <div class="header">
-		<h1>Welcome to Leonardo</h1>
+		<h1>Welcome to WASA Photo</h1>
 	  </div>
 	  <div class="login-container">
 		<div class="form-group">
@@ -59,8 +63,6 @@ export default {
 			<button type="submit" class="login-button" @click="login()">Login</button>
 		</div>
 	  </div>
-	  <span> {{ name }}</span>
-	  <span> {{ some_data }}</span>
 	</div>
   </template>
 

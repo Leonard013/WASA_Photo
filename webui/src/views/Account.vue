@@ -36,12 +36,11 @@ export default {
 	<div>
 		<div
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<h1 class="h2">Profile of {{ some_data.username }}</h1>
+			<h1 class="h2">Profile of {{ User.username }}</h1>
 		</div>
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-		<span> Il counter è: {{ count }}</span><br>
-		<span> Account ID: {{ some_data.userId }}</span>
+		<span> Account ID: {{ User.userId }}</span>
 	</div>
 </template>
 

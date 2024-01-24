@@ -11,8 +11,8 @@ import './assets/main.css'
 
 
 
-import HomeView from './views/HomeView.vue';
-export const sharedData =reactive(HomeView.data());
+import Login from './views/Login.vue';
+export const sharedData =reactive(Login.data());
 
 
 const app = createApp(App)

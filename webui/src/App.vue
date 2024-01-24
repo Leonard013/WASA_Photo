@@ -26,9 +26,9 @@ export default {}
 					<ul class="nav flex-column">
 
 						<li class="nav-item">
-							<RouterLink to="/" class="nav-link">
+							<RouterLink to="/stream" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#home"/></svg>
-								Home
+								Stream
 							</RouterLink>
 						</li>
 						<li class="nav-item">
@@ -38,9 +38,9 @@ export default {}
 							</RouterLink>
 						</li>
 						<li class="nav-item">
-							<RouterLink to="/link2" class="nav-link">
+							<RouterLink to="/account" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#key"/></svg>
-								Menu item 2
+								Profile
 							</RouterLink>
 						</li>
 
