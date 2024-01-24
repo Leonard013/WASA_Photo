@@ -4,10 +4,30 @@ export default {
 		return {
 			errormsg: null,
 			loading: false,
-			some_data: null,
+			regalo: "ghepardo",
+			username: null,
+			name: null,
+			userId: null,
+			some_data: "ghepardo",
+			count: 0,
 		}
 	},
 	methods: {
+		async login() {
+			this.loading = true;
+			this.errormsg = null;
+			this.name = document.getElementById("username").value;
+			try {
+				let response = await this.$axios.post("/session", {username: this.name});
+				this.some_data = response.data;
+				this.$router.push('/account');
+			} catch (e) {
+				this.errormsg = e.toString();
+			}
+			this.name = null;
+			this.loading = false;
+			
+		},
 		async refresh() {
 			this.loading = true;
 			this.errormsg = null;
@@ -17,6 +37,7 @@ export default {
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
+			console.log(response.data);
 			this.loading = false;
 		},
 	},
@@ -27,30 +48,85 @@ export default {
 </script>
 
 <template>
-	<div>
-		<div
-			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<h1 class="h2">Home page</h1>
-			<div class="btn-toolbar mb-2 mb-md-0">
-				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-secondary" @click="refresh">
-						Refresh
-					</button>
-					<button type="button" class="btn btn-sm btn-outline-secondary" @click="exportList">
-						Export
-					</button>
-				</div>
-				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-primary" @click="newItem">
-						New
-					</button>
-				</div>
-			</div>
+	<div class="container">
+	  <div class="header">
+		<h1>Welcome to Leonardo</h1>
+	  </div>
+	  <div class="login-container">
+		<div class="form-group">
+			<label for="username">username</label>
+			<input type="text" id="username" v-model="username" placeholder="Enter username">
+			<button type="submit" class="login-button" @click="login()">Login</button>
 		</div>
-
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+	  </div>
+	  <span> {{ name }}</span>
+	  <span> {{ some_data }}</span>
 	</div>
-</template>
+  </template>
 
-<style>
+
+
+<style scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.header h1 {
+	align-items: center;
+	margin-bottom: 20px;
+}
+
+.login-container {
+  width: 300px;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.form-group label {
+  display: block;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.login-button {
+  width: 100%;
+  padding: 10px;
+  align-items: center;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-button:hover {
+  background-color: #45a049;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9em;
+}
+
+.signup-link {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.signup-link a {
+  color: #007bff;
+  text-decoration: none;
+}
 </style>
