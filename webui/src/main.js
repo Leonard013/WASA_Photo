@@ -12,7 +12,7 @@ import './assets/main.css'
 
 
 import HomeView from './views/HomeView.vue';
-export const sharedData = HomeView.data();
+export const sharedData =reactive(HomeView.data());
 
 
 const app = createApp(App)
