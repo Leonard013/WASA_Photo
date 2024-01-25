@@ -2,7 +2,6 @@ package database
 
 import (
 	"errors"
-	"os"
 	"time"
 )
 
@@ -28,12 +27,6 @@ func (db *appdbimpl) GetStream(streamId string) ([]PhotoForStream, error) {
 				return nil, err
 			}
 
-			img, err := os.Open(path)
-			if !errors.Is(err, nil) {
-				return nil, err
-			}
-			defer img.Close()
-
 			t, err := time.Parse("2006-01-02 15:04:05", date)
 			if !errors.Is(err, nil) {
 				return nil, err
@@ -42,7 +35,7 @@ func (db *appdbimpl) GetStream(streamId string) ([]PhotoForStream, error) {
 			photo := PhotoForStream{
 				PhotoId: photoId,
 				Title:   title,
-				File:    img,
+				File:    path,
 				Author:  author,
 				Date:    t,
 			}

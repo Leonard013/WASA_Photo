@@ -60,7 +60,7 @@ type Like struct { // Like represents a like
 type PhotoForStream struct { // PhotoForStream represents a photo for the stream
 	PhotoId string    `json:"photoId"`
 	Title   string    `json:"title,omitempty"`
-	File    *os.File  `json:"File"`
+	File    string    `json:"File"`
 	Author  string    `json:"author"`
 	Date    time.Time `json:"date"`
 }
