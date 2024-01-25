@@ -52,5 +52,8 @@ func (rt *_router) Handler() http.Handler {
 	// uncommentPhoto
 	rt.router.DELETE("/comments/:commentId", rt.wrap(rt.uncommentPhoto))
 
+	// getPhotos
+	rt.router.GET("/photos/", rt.wrap(rt.getPhotos))
+
 	return rt.router
 }
