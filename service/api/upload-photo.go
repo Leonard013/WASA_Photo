@@ -43,6 +43,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	file, header, err := r.FormFile("image")
 	if !errors.Is(err, nil) {
 		http.Error(w, "Invalid file", http.StatusBadRequest)
+		ctx.Logger.Info(err)
 		return
 	}
 	defer file.Close()

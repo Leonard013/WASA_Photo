@@ -11,10 +11,6 @@ import './assets/main.css'
 
 
 
-import Login from './views/Login.vue';
-export const sharedData =reactive(Login.data());
-
-
 const app = createApp(App)
 app.config.globalProperties.$axios = axios;
 app.component("ErrorMsg", ErrorMsg);

@@ -1,37 +1,17 @@
 <script>
-
-import { sharedData } from '../main.js';
-
 export default {
 	data: function() {
 		return {
 			errormsg: null,
 			loading: false,
 			username: null,
-			name: null,
 			userId: null,
+
+			
 			some_data: null,
-			User: null,
-			count: 0,
 		}
 	},
 	methods: {
-		async login() {
-			this.loading = true;
-			this.errormsg = null;
-			this.name = document.getElementById("username").value;
-			try {
-				let response = await this.$axios.post("/session", {username: this.name});
-				sharedData.User = response.data;
-				console.log(response.data);
-				this.$router.push('/account');
-			} catch (e) {
-				this.errormsg = e.toString();
-			}
-			this.name = null;
-			this.loading = false;
-			
-		},
 		async refresh() {
 			this.loading = true;
 			this.errormsg = null;
@@ -43,32 +23,51 @@ export default {
 			}
 			console.log(response.data);
 			this.loading = false;
-		},
+		},	
+	},
+	methods: {
+		login(usern) {
+			sessionStorage.setItem('LoggedIn', true);
+			console.log(usern)
+			isVisible = true
+			console.log("Logged_Login_2");
+		}
+
 	},
 	mounted() {
-		this.refresh()
+		// if (sessionStorage.getItem('LoggedIn')) {
+		// 	this.$router.push('/account');
+		// }
+		console.log("mounted_Login_2");
 	}
 }
 </script>
 
 <template>
 	<div class="container">
-	  <div class="header">
-		<h1>Welcome to WASA Photo</h1>
-	  </div>
-	  <div class="login-container">
-		<div class="form-group">
-			<label for="username">username</label>
-			<input type="text" id="username" v-model="username" placeholder="Enter username">
-			<button type="submit" class="login-button" @click="login()">Login</button>
+
+		<div class="header">
+			<h1>Welcome to WASA Photo</h1>
 		</div>
-	  </div>
+
+		<div class="login-container">
+			<div class="form-group">
+				<input v-model="username" placeholder="Enter username" /> 
+			</div>
+			<button @click="login(username)" class="login-button"> Login </button>
+		</div>
 	</div>
-  </template>
+</template>
 
 
 
 <style scoped>
+.box{
+	background-color: purple;
+	height: 100px;
+	width: 100px;
+}
+
 .container {
   display: flex;
   flex-direction: column;

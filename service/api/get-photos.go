@@ -63,10 +63,14 @@ func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprout
 		photos[i] = PhotoForStream(v) // direct conversion is possible since the fields are the same
 	}
 
+	type Response struct {
+		Message string `json:"message"`
+	}
+
 	if len(photos) > 0 {
 		_ = json.NewEncoder(w).Encode(photos)
 	} else {
-		_ = json.NewEncoder(w).Encode("There are no photos in the stream")
+		_ = json.NewEncoder(w).Encode(Response{Message: "No photos found"})
 	}
 
 }
