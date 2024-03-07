@@ -10,8 +10,10 @@ export default {
 			loading: false,
 			photos: "Non ci sono foto",
 
-			title: "Leo è bello",
+			title: null,
 			photo: null,
+
+			
 
 
 		}
@@ -44,32 +46,29 @@ export default {
 		async uploadPhoto() {
 			this.loading = true;
 			this.errormsg = null;
+
+			const formData = new FormData();
 			const currentPhoto = this.$refs.photo.files[0];
-			// try {
-			// 	let response = await this.$axios.post("/photos");
-			// } catch (e) {
-			// 	this.errormsg = e.toString();
-			// }
-			// this.loading = false;
 
+			formData.append('title', this.title);
+			formData.append('userId', this.user.userId); // Corrected user reference
+			formData.append('image', currentPhoto);
 
-			this.$axios.post("/photos", {
-				title: this.title,
-				userId: user.userId,
-				image: currentPhoto,
-			}, {
-				Headers: {
-					'Authorization': this.user.userId,
-					'userId': this.user.userId
+			this.$axios.post("/photos/", formData, {
+					Headers: {
+						'Authorization': this.user.userId,
+						'userId': this.user.userId
+					}
 				}
-			}
 			).then(() => {
 						this.loading = false
 						console.log("Photo uploaded")
 						this.success = true
 						this.error = false
 					}).catch(
-						() => {
+						(error) => {
+							console.log("Photo not uploaded")
+							console.log(error)
 							this.success = false
 							this.error = true
 							this.photo = null
@@ -112,8 +111,10 @@ export default {
 			<div class="btn-toolbar mb-2 mb-md-0">
 
 				<div class="btn-group me-2">
+					<input v-model="title" placeholder="Enter title photo"> 
+
 					<input type="file" ref="photo" accept="image/png">
-					<button type="submit" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">Add Photo</button>
+					<button  type="submit" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">Add Photo</button>
 				</div>
 			</div>
 		</div>

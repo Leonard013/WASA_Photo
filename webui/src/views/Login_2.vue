@@ -38,6 +38,7 @@ export default {
 					sessionStorage.setItem('User', JSON.stringify(response.data)); 
 					console.log(response.data);
 					this.$router.push('/account');
+					window.location.reload();
 				}).catch(
 					(error) => {
 						console.log(error);
