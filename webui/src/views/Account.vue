@@ -8,7 +8,11 @@ export default {
 			user: JSON.parse(sessionStorage.getItem('User')),
 			errormsg: null,
 			loading: false,
-			photos: null,
+			photos: "Non ci sono foto",
+
+			title: null,
+			photo: null,
+
 
 		}
 	},
@@ -31,6 +35,7 @@ export default {
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
+			
 			this.name = null;
 			this.loading = false;
 		},
@@ -45,7 +50,31 @@ export default {
 				this.errormsg = e.toString();
 			}
 			this.loading = false;
+
+
+			this.$axios.post("/photos", {
+				title: this.title,
+				userId: user.userId,
+				image: this.image,
+
+			}).then(() => {
+						this.success = true
+						this.error = false
+					}).catch(
+						() => {
+							this.success = false
+							this.error = true
+							this.photo = null
+						}
+					)
+
+
+
+
+
+
 		},
+
 		async refresh() {
 			this.loading = true;
 			this.errormsg = null;
@@ -58,22 +87,29 @@ export default {
 		},
 	},
 	mounted() {
-		this.getPhotos()
-		this.refresh()
+		// this.getPhotos()
+		// this.refresh()
 	}
 }
 </script>
 
 <template>
 	<div>
-		<div
-			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<h1 class="h2">Profile of {{ user.username }} </h1>
+		<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+
+			<h1 class="h2">
+				Profile of {{ user.username }} 
+			</h1>
+			
 			<div class="btn-toolbar mb-2 mb-md-0">
+
 				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">
+					<input type="file" ref="photo" accept="image/png">
+					<button type="submit" class="btn btn-sm btn-outline-primary">Add Photo</button>
+
+					<!-- <button type="button" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">
 						Post a New Photo
-					</button>
+					</button> -->
 				</div>
 			</div>
 		</div>
@@ -82,12 +118,10 @@ export default {
 
 		<div >
 			Account ID: {{ user.userId }}
-			le foto sono: {{ photos }}
 		</div>
 
 		<div >
-			ciao
-
+			le foto sono: {{ photos }}
 		</div>
 	</div>
 </template>

@@ -18,7 +18,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	_ = json.NewDecoder(r.Body).Decode(&follow_user)
 	_ = r.Body.Close()
 	username := follow_user.Username
-	userId := follow_user.UserId
+	userId := follow_user.UserId // who wants to follow
 
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
@@ -31,7 +31,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	followedId, err := rt.db.GetUserId(username)
+	followedId, err := rt.db.GetUserId(username) // who we want to follow
 	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)
 		return

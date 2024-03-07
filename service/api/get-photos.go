@@ -13,7 +13,7 @@ import (
 // Upload a photo.
 // The user must be already logged in.
 func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "application/json")
+	w.Header().Set("content-type", "multipart/form-data")
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
@@ -25,8 +25,8 @@ func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	username := ps.ByName("author")
-	id, err := rt.db.GetUserId(username)
+	username := ps.ByName("author") 
+	id, err := rt.db.GetUserId(username) // Owner of the photos
 	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -34,8 +34,9 @@ func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprout
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	bannerId := r.Header.Get("userId")
-	err = rt.db.IfBanned(id, bannerId) // check if it is blocked
+
+	watcherId := r.Header.Get("userId") // Who wants to see the photos
+	err = rt.db.IfBanned(id, watcherId) // check if it is blocked
 	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

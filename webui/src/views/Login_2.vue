@@ -1,3 +1,5 @@
+
+
 <script>
 export default {
 	data: function() {
@@ -7,7 +9,6 @@ export default {
 			username: null,
 			userId: null,
 
-			
 			some_data: null,
 		}
 	},
@@ -15,29 +16,42 @@ export default {
 		async refresh() {
 			this.loading = true;
 			this.errormsg = null;
-			try {
-				let response = await this.$axios.get("/");
-				this.some_data = response.data;
-			} catch (e) {
-				this.errormsg = e.toString();
-			}
-			console.log(response.data);
-			this.loading = false;
-		},	
-	},
-	methods: {
-		login(usern) {
-			sessionStorage.setItem('LoggedIn', true);
-			console.log(usern)
-			isVisible = true
-			console.log("Logged_Login_2");
-		}
 
+			this.$axios.get("/").then((response) => {
+				this.some_data = response.data;
+				console.log(response.data);
+			}).catch(
+				(error) => {
+					console.log(error);
+				}
+			);
+			this.loading = false;
+		},
+
+		async login(usern) {
+			this.loading = true;
+			this.errormsg = null;
+
+			sessionStorage.setItem('LoggedIn', true);
+			console.log(usern + " logged | Login_2");
+			this.$axios.post("/session", {username: usern}).then((response) => {
+					sessionStorage.setItem('User', JSON.stringify(response.data)); 
+					console.log(response.data);
+					this.$router.push('/account');
+				}).catch(
+					(error) => {
+						console.log(error);
+					}
+				);
+
+			this.loading = false;
+
+		}
 	},
 	mounted() {
-		// if (sessionStorage.getItem('LoggedIn')) {
-		// 	this.$router.push('/account');
-		// }
+		if (sessionStorage.getItem('LoggedIn')) {
+			this.$router.push('/account');
+		}
 		console.log("mounted_Login_2");
 	}
 }
