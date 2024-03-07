@@ -40,12 +40,14 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
+
 	file, header, err := r.FormFile("image")
 	if !errors.Is(err, nil) {
 		http.Error(w, "Invalid file", http.StatusBadRequest)
 		ctx.Logger.Info(err)
 		return
 	}
+
 	defer file.Close()
 	const maxFileSize = 20 << 20
 	if header.Size > maxFileSize {
