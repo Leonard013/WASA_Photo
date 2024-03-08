@@ -55,9 +55,8 @@ export default {
 			formData.append('image', currentPhoto);
 
 			this.$axios.post("/photos/", formData, {
-					Headers: {
+					headers: {
 						'Authorization': this.user.userId,
-						'userId': this.user.userId
 					}
 				}
 			).then(() => {
@@ -74,12 +73,6 @@ export default {
 							this.photo = null
 						}
 					)
-
-
-
-
-
-
 		},
 
 		async refresh() {

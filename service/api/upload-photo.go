@@ -16,18 +16,10 @@ import (
 func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "multipart/form-data")
 
-
-	ctx.Logger.Info("1")
-
-	token := r.FormValue("userId") // r.Header.Get("Authorization")
-
-
-
-	ctx.Logger.Info(token)
+	token := r.Header.Get("Authorization")
 
 	err := rt.db.CheckToken(token)
 	if errors.Is(err, sql.ErrNoRows) {
-		ctx.Logger.Info("Token not found")
 		ctx.Logger.Info(err)
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -36,15 +28,11 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	ctx.Logger.Info("2")
-
 	title := r.FormValue("title")
 	if len(title) > 30 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	ctx.Logger.Info(title)
 
 	userId := r.FormValue("userId")
 	if _, err = rt.db.GetUsername(userId); !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) { // Check if the user is logged in
@@ -54,8 +42,6 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	ctx.Logger.Info((userId))
 
 
 	file, header, err := r.FormFile("image")
