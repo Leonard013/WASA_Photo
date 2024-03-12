@@ -6,14 +6,15 @@ export default {
 	data: function() {
 		return {
 			user: JSON.parse(sessionStorage.getItem('User')),
+			profile: JSON.parse(sessionStorage.getItem('Profile')),
 			errormsg: null,
 			loading: false,
 			photos: "Non ci sono foto",
 
 			title: null,
-			photo: null,
+			photoUploaded: null,
 
-			
+			isOwner: false,
 
 
 		}
@@ -24,21 +25,34 @@ export default {
 			this.loading = true;
 			this.errormsg = null;
 			try {
-				let response = await this.$axios.get("/photos/"+user.username, {
-						username: this.name
-					}, {
-						Headers: {
-							'Authorization': this.user.userId,
-							'userId': this.user.userId
+				let response = await this.$axios.get("/photos/"+this.profile.username, {
+						headers: {
+							'Authorization': this.profile.userId,
 						}
 					}
 				);
-				this.photos = response.data.Message;
+				// this.profile = response.data.photos
+				// this.followers = response.data.followers
+				// this.following = response.data.following
+
+				// for (let i = 0; i < this.profile.length; i++) {
+				// 	this.profile[i].image = 'data:image/*;base64,' + this.profile[i].image
+				// }
+				this.photos = response.data;
+				
+				for (let i = 0; i < this.photos.length; i++) {
+					this.photos[i].File = 'data:image/*;base64,' + this.photos[i].File
+				}
+
+
+
+
+				console.log(this.photos);
 			} catch (e) {
 				this.errormsg = e.toString();
+				console.log(this.errormsg)
 			}
 			
-			this.name = null;
 			this.loading = false;
 		},
 
@@ -48,7 +62,7 @@ export default {
 			this.errormsg = null;
 
 			const formData = new FormData();
-			const currentPhoto = this.$refs.photo.files[0];
+			const currentPhoto = this.$refs.photoUploaded.files[0];
 
 			formData.append('title', this.title);
 			formData.append('userId', this.user.userId); // Corrected user reference
@@ -61,16 +75,14 @@ export default {
 				}
 			).then(() => {
 						this.loading = false
+						window.location.reload()
 						console.log("Photo uploaded")
-						this.success = true
-						this.error = false
 					}).catch(
 						(error) => {
+							this.loading = false
 							console.log("Photo not uploaded")
 							console.log(error)
-							this.success = false
-							this.error = true
-							this.photo = null
+							this.photoUploaded = null
 						}
 					)
 		},
@@ -87,8 +99,14 @@ export default {
 		},
 	},
 	mounted() {
-		// this.getPhotos()
+		if (this.user.userId == this.profile.userId) {
+			this.isOwner = true;
+		}
+		console.log("mounted_Account")
+		this.getPhotos()
 		// this.refresh()
+
+
 	}
 }
 </script>
@@ -98,31 +116,45 @@ export default {
 		<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 
 			<h1 class="h2">
-				Profile of {{ user.username }} 
+				Profile of {{ profile.username }} 
 			</h1>
 			
-			<div class="btn-toolbar mb-2 mb-md-0">
+			<div v-if="isOwner" class="btn-toolbar mb-2 mb-md-0">
 
 				<div class="btn-group me-2">
 					<input v-model="title" placeholder="Enter title photo"> 
 
-					<input type="file" ref="photo" accept="image/png">
+					<input type="file" ref="photoUploaded" accept="image/png">
 					<button  type="submit" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">Add Photo</button>
 				</div>
 			</div>
+
 		</div>
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 
-		<div >
-			Account ID: {{ user.userId }}
+		<div v-if="isOwner" >
+			Account ID: {{ profile.userId }}
 		</div>
 
-		<div >
-			le foto sono: {{ photo }}
+		<div v-for="photo in photos" :key="photo.photoId" class="photo-entry">
+			<h3>{{ photo.title }}</h3>
+			<img :src="photo.File" alt="Photo" class="photo-container">
+			<p>Date: {{ new Date(photo.date).toLocaleDateString() }}</p>
 		</div>
+
 	</div>
 </template>
 
 <style>
+.photo-entry {
+	margin-bottom: 20px;
+}
+
+.photo-container {
+	width: 100%;
+	max-width: 300px;
+	height: auto;
+}
+
 </style>

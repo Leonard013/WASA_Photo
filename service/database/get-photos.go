@@ -2,6 +2,8 @@ package database
 
 import (
 	"errors"
+	"io/ioutil"
+	"os"
 	"time"
 )
 
@@ -26,6 +28,19 @@ func (db *appdbimpl) GetPhotos(userId string) ([]PhotoForStream, error) {
 			return nil, err
 		}
 
+		// Open the file
+		file, err := os.Open(path)
+		if !errors.Is(err, nil) {
+			return nil, err
+		}
+		defer file.Close() // Make sure to close the file when done
+
+		// Read the file into a byte slice ([]byte)
+		data, err := ioutil.ReadAll(file)
+		if !errors.Is(err, nil) {
+			return nil, err
+		}
+
 		t, err := time.Parse("2006-01-02 15:04:05", date)
 		if !errors.Is(err, nil) {
 			return nil, err
@@ -34,7 +49,7 @@ func (db *appdbimpl) GetPhotos(userId string) ([]PhotoForStream, error) {
 		photo := PhotoForStream{
 			PhotoId: photoId,
 			Title:   title,
-			File:    path,
+			File:    data,
 			Author:  author,
 			Date:    t,
 		}

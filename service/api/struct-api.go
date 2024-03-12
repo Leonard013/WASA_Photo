@@ -21,13 +21,14 @@ var UsersCatalog = make(map[string]string) // UsersCatalog is a map of users' us
 type Username struct {
 	Username string `json:"username"`
 }
+
+type UserId struct {
+	UserId string `json:"userId"`
+}
+
 type phtoId_userId struct {
 	PhotoId string `json:"photoId"`
 	UserId  string `json:"userId"`
-}
-type User_Id struct {
-	Username string `json:"username"`
-	UserId   string `json:"userId"`
 }
 
 type User struct { // User represents a user
@@ -60,7 +61,7 @@ type Like struct { // Like represents a like
 type PhotoForStream struct { // PhotoForStream represents a photo for the stream
 	PhotoId string    `json:"photoId"`
 	Title   string    `json:"title,omitempty"`
-	File    string    `json:"File"`
+	File    []byte     `json:"File"`
 	Author  string    `json:"author"`
 	Date    time.Time `json:"date"`
 }

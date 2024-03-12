@@ -35,7 +35,7 @@ func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	watcherId := r.Header.Get("userId") // Who wants to see the photos
+	watcherId := token // Who wants to see the photos
 	err = rt.db.IfBanned(id, watcherId) // check if it is blocked
 	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)

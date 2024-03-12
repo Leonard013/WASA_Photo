@@ -14,7 +14,7 @@ import (
 // The user must be already logged in.
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
-	var follow_user User_Id
+	var follow_user User
 	_ = json.NewDecoder(r.Body).Decode(&follow_user)
 	_ = r.Body.Close()
 	username := follow_user.Username

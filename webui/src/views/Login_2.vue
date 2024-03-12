@@ -35,7 +35,8 @@ export default {
 			sessionStorage.setItem('LoggedIn', true);
 			console.log(usern + " logged | Login_2");
 			this.$axios.post("/session", {username: usern}).then((response) => {
-					sessionStorage.setItem('User', JSON.stringify(response.data)); 
+					sessionStorage.setItem('User', JSON.stringify(response.data));
+					sessionStorage.setItem('Profile',JSON.stringify(response.data)) 
 					console.log(response.data);
 					this.$router.push('/account');
 					window.location.reload();
