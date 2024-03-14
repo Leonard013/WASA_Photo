@@ -26,7 +26,7 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	photoId := ps.ByName("photoId") // the user to unban
-	userId := r.Header.Get("userId")
+	userId := token
 
 	authorId, err := rt.db.GetAuthorId(photoId)
 	if !errors.Is(err, nil) {

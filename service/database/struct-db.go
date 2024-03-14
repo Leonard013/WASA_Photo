@@ -13,3 +13,11 @@ type PhotoForStream struct { // PhotoForStream represents a photo for the stream
 	Author  string    `json:"author"`
 	Date    time.Time `json:"date"`
 }
+
+
+type UserInfo struct {
+	Followers []string `json:"followers"`
+	Following []string `json:"following"`
+	Banned   []string `json:"banned"`
+	IsBanned []string `json:"isBanned"`
+}

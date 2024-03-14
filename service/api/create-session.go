@@ -33,9 +33,21 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		ctx.Logger.Info("User ", username, " created")
 	}
 	ctx.Logger.Info("User ", username, " logged in")
+
+	info, err := rt.db.GetUserInfo(id)
+	if !errors.Is(err, nil) {
+		w.WriteHeader(http.StatusInternalServerError)
+		ctx.Logger.Error(err)
+		return
+	}
+
 	user := User{
 		Username: username,
 		UserId:   id,
+		Followers: info.Followers,
+		Following: info.Following,
+		Banned:    info.Banned,
+		IsBanned:  info.IsBanned,
 	}
 	_ = json.NewEncoder(w).Encode(user)
 

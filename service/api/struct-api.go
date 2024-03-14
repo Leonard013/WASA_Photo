@@ -34,6 +34,10 @@ type phtoId_userId struct {
 type User struct { // User represents a user
 	UserId   string `json:"userId"`
 	Username string `json:"username"`
+	Followers []string `json:"followers"`
+	Following []string `json:"following"`
+	Banned   []string `json:"banned"`
+	IsBanned []string `json:"isBanned"`
 }
 
 type Photo struct { // Photo represents a photo

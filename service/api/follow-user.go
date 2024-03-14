@@ -53,8 +53,10 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	if !errors.Is(err, nil) {
 		if err.Error() == "already following" {
 			w.WriteHeader(http.StatusForbidden)
+			ctx.Logger.Info(err)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
+			ctx.Logger.Error(err)
 		}
 		return
 	}
@@ -64,6 +66,8 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
+
 
 	ctx.Logger.Info("User ", name, " followed ", username)
 	user := User{

@@ -64,6 +64,7 @@ type AppDatabase interface {
 	Uncomment(commentId string, userId string) error
 	GetStream(streamId string) ([]PhotoForStream, error)
 	GetPhotos(userId string) ([]PhotoForStream, error)
+	GetUserInfo(userId string) (UserInfo, error)
 
 	Ping() error
 }

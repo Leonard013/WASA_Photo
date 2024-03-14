@@ -25,6 +25,7 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
+	
 	username := ps.ByName("username")
 	id, err := rt.db.GetUserId(username)
 	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
@@ -34,7 +35,8 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	bannerId := r.Header.Get("userId")
+
+	bannerId := token
 	err = rt.db.IfBanned(id, bannerId) // check if it is blocked
 	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -44,10 +46,29 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
+	info, err := rt.db.GetUserInfo(id)
+	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	} else if !errors.Is(err, nil) {
+		w.WriteHeader(http.StatusInternalServerError)
+		ctx.Logger.Error(err)
+		return
+	}
+
+	
+
 	user := User{
 		UserId:   id,
 		Username: username,
+		Followers: info.Followers,
+		Following: info.Following,
+		Banned: info.Banned,
+		IsBanned: info.IsBanned,
 	}
+
+	ctx.Logger.Info("User info: ", user)
+
 	_ = json.NewEncoder(w).Encode(user)
 
 }

@@ -36,7 +36,7 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	userId := r.Header.Get("userId")
+	userId := token
 
 	err = rt.db.IfBanned(unf_userId, userId) // check if it is blocked
 

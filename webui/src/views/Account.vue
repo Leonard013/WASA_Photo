@@ -9,17 +9,72 @@ export default {
 			profile: JSON.parse(sessionStorage.getItem('Profile')),
 			errormsg: null,
 			loading: false,
-			photos: "Non ci sono foto",
+			photos: null,
 
 			title: null,
 			photoUploaded: null,
+			search_username: null,
 
 			isOwner: false,
+
+			hasBanned: null,
+			isBanned: null,
+			isFollowing: null,
 
 
 		}
 	},
 	methods: {
+
+		backToProfile() {
+			sessionStorage.setItem('Profile', JSON.stringify(this.user));
+			window.location.reload();
+		},
+
+		async deletePhoto(Id) {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				let response = await this.$axios.delete("/photos/"+Id, {
+						headers: {
+							'Authorization': this.user.userId,
+						}
+					}
+				);
+				this.loading = false;
+				console.log("Photo deleted")
+				window.location.reload()
+			} catch (e) {
+				this.errormsg = e.toString();
+				console.log(this.errormsg)
+			}
+		},
+
+		getInfo() {
+			console.log(this.user)
+			console.log(this.profile)
+
+			if ((this.user.banned == null) || !(this.user.isBanned.includes(this.profile.userId)) ) { // Check if user is banned from the user_profile page
+				this.isBanned = false;
+			} else {
+				this.isBanned = true;
+			}
+
+			if ((this.user.isBanned == null) || !(this.user.isBanned.includes(this.profile.userId)) ) { // Check if user is banned from the user_profile page
+				this.hasBanned = false;
+			} else {
+				this.hasBanned = true;
+			}
+
+			if ((this.user.following == null) || !(this.user.following.includes(this.profile.userId)) ) { // Check if user is following the user_profile page
+				this.isFollowing = false;
+			} else {
+				this.isFollowing = true;
+			}
+			console.log("hasBanned: " + this.hasBanned)
+			console.log("isBanned: " + this.isBanned)
+			console.log("isFollowing: " + this.isFollowing)
+		},
 
 		async getPhotos() {
 			this.loading = true;
@@ -27,27 +82,19 @@ export default {
 			try {
 				let response = await this.$axios.get("/photos/"+this.profile.username, {
 						headers: {
-							'Authorization': this.profile.userId,
+							'Authorization': this.user.userId,
 						}
 					}
 				);
-				// this.profile = response.data.photos
-				// this.followers = response.data.followers
-				// this.following = response.data.following
-
-				// for (let i = 0; i < this.profile.length; i++) {
-				// 	this.profile[i].image = 'data:image/*;base64,' + this.profile[i].image
-				// }
-				this.photos = response.data;
-				
-				for (let i = 0; i < this.photos.length; i++) {
+				if (!response.data.message) {
+					this.photos = response.data;
+					for (let i = 0; i < this.photos.length; i++) {
 					this.photos[i].File = 'data:image/*;base64,' + this.photos[i].File
+					}
+					console.log(this.photos);
 				}
-
-
-
-
-				console.log(this.photos);
+				this.loading = false;
+				
 			} catch (e) {
 				this.errormsg = e.toString();
 				console.log(this.errormsg)
@@ -56,6 +103,26 @@ export default {
 			this.loading = false;
 		},
 
+		async getProfile() {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				let response = await this.$axios.get("/users/"+this.search_username, {
+						headers: {
+							'Authorization': this.user.userId,
+						}
+					}
+				);
+				sessionStorage.setItem('Profile', JSON.stringify(response.data));
+				this.profile = response.data;
+				this.loading = false;
+				console.log(this.profile);
+				window.location.reload();
+			} catch (e) {
+				this.errormsg = e.toString();
+				console.log(this.errormsg)
+			}
+		},
 
 		async uploadPhoto() {
 			this.loading = true;
@@ -97,16 +164,58 @@ export default {
 			}
 			this.loading = false;
 		},
+
+		async followUser() {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				let response = await this.$axios.post("/follow/", {
+					username: this.profile.username,
+					userId: this.user.userId
+				}, {
+						headers: {
+							'Authorization': this.user.userId,
+						}
+					}
+				);
+				this.loading = false;
+				console.log("User followed")
+				window.location.reload()
+				
+			} catch (e) {
+				this.errormsg = e.toString();
+				console.log(this.errormsg)
+			}
+		},
+
+		async unfollowUser() {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				let response = await this.$axios.delete("/follow/"+this.profile.username, {
+						headers: {
+							'Authorization': this.user.userId,
+						}
+					}
+				);
+				this.loading = false;
+				console.log("User unfollowed")
+				window.location.reload();
+
+			} catch (e) {
+				this.errormsg = e.toString();
+				console.log(this.errormsg)
+			}
+		},
 	},
 	mounted() {
 		if (this.user.userId == this.profile.userId) {
 			this.isOwner = true;
+		} else {
+			this.getInfo()
 		}
 		console.log("mounted_Account")
 		this.getPhotos()
-		// this.refresh()
-
-
 	}
 }
 </script>
@@ -122,11 +231,32 @@ export default {
 			<div v-if="isOwner" class="btn-toolbar mb-2 mb-md-0">
 
 				<div class="btn-group me-2">
-					<input v-model="title" placeholder="Enter title photo"> 
-
-					<input type="file" ref="photoUploaded" accept="image/png">
-					<button  type="submit" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">Add Photo</button>
+					<tr>
+						<td>
+							<input v-model="title" placeholder="Enter title photo"> 
+						</td>
+						<td>
+							<input type="file" ref="photoUploaded" accept="image/png">
+						</td>
+						<button  type="submit" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">Add Photo</button>
+					</tr>
 				</div>
+			</div>
+
+			<div v-if="!isBanned && !isOwner">
+				<button v-if="!isFollowing" type="submit" class="btn btn-sm btn-outline-primary" @click="followUser">Follow</button>
+				<button v-if="isFollowing" type="submit" class="btn btn-sm btn-outline-primary" @click="unfollowUser">Unfollow</button>
+				<button v-if="!hasBanned" type="submit" class="btn btn-sm btn-outline-primary" @click="banUser">Ban</button>
+				<button v-if="hasBanned" type="submit" class="btn btn-sm btn-outline-primary" @click="unbanUser">Unban</button>
+				
+			</div>
+
+
+
+			<div>
+				<input v-model="search_username" placeholder="Enter username you are looking for">
+				<button type="submit" class="btn btn-sm btn-outline-primary" @click="getProfile">Search</button>
+				<button v-if="!isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="backToProfile">Back to Profile</button>
 			</div>
 
 		</div>
@@ -134,13 +264,29 @@ export default {
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 
 		<div v-if="isOwner" >
-			Account ID: {{ profile.userId }}
+			Account ID: {{ this.profile.userId }}
+			<br>
+			<p v-for = "(value, key) in this.profile" :key="key">
+				{{ key }}: {{ value }}
+			</p>
 		</div>
 
-		<div v-for="photo in photos" :key="photo.photoId" class="photo-entry">
-			<h3>{{ photo.title }}</h3>
-			<img :src="photo.File" alt="Photo" class="photo-container">
-			<p>Date: {{ new Date(photo.date).toLocaleDateString() }}</p>
+		<div v-if="photos" v-for="photo in photos" :key="photo.photoId" class="photo-entry">
+			<tr>
+				<td>
+					<h3>{{ photo.title }}</h3>
+					<img :src="photo.File" alt="Photo" class="photo-container">
+					<p>PhotoId: {{ photo.photoId }}</p>
+					<p>Date: {{ new Date(photo.date).toLocaleDateString() }}</p>
+				</td>
+				<td>
+					<button type="submit" class="btn btn-sm btn-outline-primary" @click="deletePhoto(photo.photoId)">Delete</button>
+				</td>
+			</tr>
+
+		</div>
+		<div v-else>
+			<p>No photos</p>
 		</div>
 
 	</div>
