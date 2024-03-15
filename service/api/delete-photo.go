@@ -26,7 +26,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	photoId := ps.ByName("photoId") // the photo to delete
-	userId := token
+	userId := r.Header.Get("userId") // the user that wants to delete the photo
 
 	path, err := rt.db.DeletePhoto(photoId, userId)
 	if !errors.Is(err, nil) {

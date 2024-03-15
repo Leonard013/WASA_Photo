@@ -43,6 +43,7 @@ export default {
 				let response = await this.$axios.delete("/photos/"+Id, {
 						headers: {
 							'Authorization': this.user.userId,
+							'userId': this.user.userId
 						}
 					}
 				);
@@ -103,6 +104,7 @@ export default {
 				let response = await this.$axios.get("/photos/"+this.profile.username, {
 						headers: {
 							'Authorization': this.user.userId,
+							'userId': this.user.userId,
 						}
 					}
 				);
@@ -151,6 +153,7 @@ export default {
 				let response = await this.$axios.get("/users/"+this.search_username, {
 						headers: {
 							'Authorization': this.user.userId,
+							'userId': this.user.userId
 						}
 					}
 				);
@@ -248,6 +251,7 @@ export default {
 				let response = await this.$axios.delete("/follow/"+this.profile.username, {
 						headers: {
 							'Authorization': this.user.userId,
+							'userId': this.user.userId,
 						}
 					}
 				);
@@ -272,6 +276,7 @@ export default {
 				}, {
 						headers: {
 							'Authorization': this.user.userId,
+
 						}
 					}
 				);
@@ -293,6 +298,7 @@ export default {
 				let response = await this.$axios.delete("/ban/"+this.profile.username, {
 						headers: {
 							'Authorization': this.user.userId,
+							'userId': this.user.userId,
 						}
 					}
 				);

@@ -36,7 +36,7 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	bannerId := token
+	bannerId := r.Header.Get("userId")
 	err = rt.db.IfBanned(id, bannerId) // check if it is blocked
 	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
