@@ -23,8 +23,6 @@ export default {
 
 			comment_text: null,
 
-			comments: {},
-			likes: {},
 			
 
 		}
@@ -109,30 +107,9 @@ export default {
 					}
 				);
 				if (!response.data.message) {
-					this.photos = response.data;
+					this.photos = response.data.reverse();
 					for (let i = 0; i < this.photos.length; i++) {
 						this.photos[i].File = 'data:image/*;base64,' + this.photos[i].File
-						this.comments[this.photos[i].photoId] = []
-						this.likes[this.photos[i].photoId] = []
-						if (this.photos[i].commentTexts) {
-							for (let j = 0; j < this.photos[i].commentTexts.length; j++) {
-								this.comments[this.photos[i].photoId].push({
-									commentId: this.photos[i].commentIds[j],
-									commentText: this.photos[i].commentTexts[j],
-									CommentAuthor: this.photos[i].commentAuthors[j],
-									CommentDates: this.photos[i].commentDates[j],
-								})
-							}
-						}
-						if (this.photos[i].likes) {
-							for (let j = 0; j < this.photos[i].likes.length; j++) {
-								this.likes[this.photos[i].photoId].push({
-									likeId: this.photos[i].likeIds[j],
-									likeAuthor: this.photos[i].likes[j],
-									likeDates: this.photos[i].likeDates[j],
-								})
-							}
-						}
 					}
 					console.log(this.photos);
 				}
@@ -362,6 +339,52 @@ export default {
 			}
 		},
 
+		async likePhoto(id) {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				let response = await this.$axios.post("/likes/", {
+					photoId: id,
+					userId: this.user.userId
+				}, {
+						headers: {
+							'Authorization': this.user.userId,
+						}
+					}
+				);
+				this.loading = false;
+				console.log("Photo liked")
+				this.search_username = this.user.username
+				this.getProfile()
+
+			} catch (e) {
+				this.errormsg = e.toString();
+				console.log(this.errormsg)
+			}
+		},
+
+		async unlikePhoto(id) {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				let response = await this.$axios.delete("/likes/"+id, {
+						headers: {
+							'Authorization': this.user.userId,
+							'userId': this.user.userId,
+						}
+					}
+				);
+				this.loading = false;
+				console.log("Photo unliked")
+				this.search_username = this.user.username
+				this.getProfile()
+
+			} catch (e) {
+				this.errormsg = e.toString();
+				console.log(this.errormsg)
+			}
+		}
+
 
 	},
 	mounted() {
@@ -377,12 +400,12 @@ export default {
 </script>
 
 <template>
-	<div>
+	<div v-cloak>
 		<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 
-			<h1 class="h2">
-				Profile of {{ profile.username }}
-			</h1>
+			<h2 class="h2">
+				Profile of {{ profile.username }} 
+			</h2>
 			
 			<div v-if="isOwner" class="btn-toolbar mb-2 mb-md-0">
 
@@ -417,6 +440,11 @@ export default {
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 
 		<div v-if="!isBanned">
+			<p>
+				Followers: {{ profile.followers ? profile.followers.length : 0 }}
+				<br>
+				Following: {{ profile.following ? profile.following.length : 0 }}
+			</p>
 			<div v-if="isOwner" >
 				Account ID: {{ this.profile.userId }}
 				<br>
@@ -436,12 +464,16 @@ export default {
 					<td>
 						<tr>
 							<td>
-								<button v-if="isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="deletePhoto(photo.photoId)">Delete</button>
+								<button v-if="isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="deletePhoto(photo.photoId)">Delete Photo</button>
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<button type="submit" class="btn btn-sm btn-outline-primary" @click="likePhoto(photo.photoId)">Like</button>
+								<button v-if="photo.likeAuthors ? !photo.likeAuthors.includes(user.userId) : true" type="submit" class="btn btn-sm btn-outline-primary" @click="likePhoto(photo.photoId)">Like</button>
+								<button v-if="photo.likeAuthors ? photo.likeAuthors.includes(user.userId) : false" type="submit" class="btn btn-sm btn-outline-primary" @click="unlikePhoto(photo.photoId)">Unlike</button>
+							</td>
+							<td>
+								<p>Likes: {{ photo.likeIds ? photo.likeIds.length : 0 }}</p>
 							</td>
 						</tr>
 						<tr>
@@ -501,5 +533,8 @@ export default {
   padding: 10px;
   max-height: 200px;
   overflow-y: auto;
+}
+[v-clock] {
+	display: none;
 }
 </style>
