@@ -113,10 +113,14 @@ export default {
 						}
 					}
 				);
-				sessionStorage.setItem('Profile', JSON.stringify(response.data));
-				this.profile = response.data;
+				if (response.data.userId == this.user.userId) {
+					sessionStorage.setItem('User', JSON.stringify(response.data));
+					this.user = response.data;
+				} else {
+					sessionStorage.setItem('Profile', JSON.stringify(response.data));
+					this.profile = response.data;
+				}
 				this.loading = false;
-				console.log(this.profile);
 				window.location.reload();
 			} catch (e) {
 				this.errormsg = e.toString();
@@ -180,7 +184,10 @@ export default {
 				);
 				this.loading = false;
 				console.log("User followed")
-				window.location.reload()
+				this.search_username = this.user.username
+				this.getProfile()
+
+				
 				
 			} catch (e) {
 				this.errormsg = e.toString();
@@ -200,13 +207,59 @@ export default {
 				);
 				this.loading = false;
 				console.log("User unfollowed")
-				window.location.reload();
+				this.search_username = this.user.username
+				this.getProfile()
 
 			} catch (e) {
 				this.errormsg = e.toString();
 				console.log(this.errormsg)
 			}
 		},
+
+		// async banUser() {
+		// 	this.loading = true;
+		// 	this.errormsg = null;
+		// 	try {
+		// 		let response = await this.$axios.post("/ban/", {
+		// 			username: this.profile.username,
+		// 			userId: this.user.userId
+		// 		}, {
+		// 				headers: {
+		// 					'Authorization': this.user.userId,
+		// 				}
+		// 			}
+		// 		);
+		// 		this.loading = false;
+		// 		console.log("User banned")
+		// 		this.search_username = this.user.username
+		// 		this.getProfile()
+
+		// 	} catch (e) {
+		// 		this.errormsg = e.toString();
+		// 		console.log(this.errormsg)
+		// 	}
+		// },
+
+		// async unbanUser() {
+		// 	this.loading = true;
+		// 	this.errormsg = null;
+		// 	try {
+		// 		let response = await this.$axios.delete("/ban/"+this.profile.username, {
+		// 				headers: {
+		// 					'Authorization': this.user.userId,
+		// 				}
+		// 			}
+		// 		);
+		// 		this.loading = false;
+		// 		console.log("User unbanned")
+		// 		this.search_username = this.user.username
+		// 		this.getProfile()
+
+		// 	} catch (e) {
+		// 		this.errormsg = e.toString();
+		// 		console.log(this.errormsg)
+		// 	}
+		// },
 	},
 	mounted() {
 		if (this.user.userId == this.profile.userId) {

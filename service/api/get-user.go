@@ -67,8 +67,6 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		IsBanned: info.IsBanned,
 	}
 
-	ctx.Logger.Info("User info: ", user)
-
 	_ = json.NewEncoder(w).Encode(user)
 
 }
