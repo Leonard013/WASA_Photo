@@ -31,14 +31,28 @@ export default {
 		async login(usern) {
 			this.loading = true;
 			this.errormsg = null;
+			var output = null;
 
 			sessionStorage.setItem('LoggedIn', true);
 			console.log(usern + " logged | Login_2");
 			this.$axios.post("/session", {username: usern}).then((response) => {
-					sessionStorage.setItem('User', JSON.stringify(response.data));
-					sessionStorage.setItem('Profile',JSON.stringify(response.data)) 
-					console.log(response.data);
+					output = response.data;
+					if (output.banned == null) {
+						output.banned = [];
+					}
+					if (output.isBanned == null){
+						output.isBanned = [];
+					}
+					if (output.following == null) {
+						output.following = [];
+					}
+					if (output.followers == null) {
+					output.followers = [];
+					}
+					sessionStorage.setItem('User', JSON.stringify(output));
+					sessionStorage.setItem('Profile',JSON.stringify(output)) 
 					this.$router.push('/account');
+					console.log(output);
 					window.location.reload();
 				}).catch(
 					(error) => {

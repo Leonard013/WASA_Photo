@@ -60,7 +60,7 @@ func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprout
 
 	photos = make([]PhotoForStream, len(db_photos))
 	for i, v := range db_photos {
-
+		
 		photos[i] = PhotoForStream(v) // direct conversion is possible since the fields are the same
 	}
 

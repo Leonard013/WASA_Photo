@@ -21,6 +21,11 @@ export default {
 			isBanned: null,
 			isFollowing: null,
 
+			comment_text: null,
+
+			comments: {},
+			likes: {},
+			
 
 		}
 	},
@@ -54,26 +59,41 @@ export default {
 			console.log(this.user)
 			console.log(this.profile)
 
-			if ((this.user.banned == null) || !(this.user.banned.includes(this.profile.userId)) ) { // Check if user is banned from the user_profile page
+			if (this.user.banned == null) {
+				this.hasBanned = false;
+				this.user.banned = [];
+			} else if (!this.user.banned.includes(this.profile.userId))  { // Check if user is banned from the user_profile page
 				this.hasBanned = false;
 			} else {
 				this.hasBanned = true;
 			}
 
-			if ((this.user.isBanned == null) || !(this.user.isBanned.includes(this.profile.userId)) ) { // Check if user is banned from the user_profile page
+			if (this.user.isBanned == null){
+				this.isBanned = false;
+				this.user.isBanned = [];
+			} else if (!this.user.isBanned.includes(this.profile.userId)) { // Check if user is banned from the user_profile page
 				this.isBanned = false;
 			} else {
 				this.isBanned = true;
 			}
 
-			if ((this.user.following == null) || !(this.user.following.includes(this.profile.userId)) ) { // Check if user is following the user_profile page
+			if (this.user.following == null) {
+				this.isFollowing = false;
+				this.user.following = [];
+			} else if (!this.user.following.includes(this.profile.userId)) { // Check if user is following the user_profile page
 				this.isFollowing = false;
 			} else {
 				this.isFollowing = true;
 			}
+
+			if (this.user.followers == null) {
+				this.user.followers = [];
+			}
+
 			console.log("hasBanned: " + this.hasBanned)
 			console.log("isBanned: " + this.isBanned)
 			console.log("isFollowing: " + this.isFollowing)
+			console.log(this.user)
 		},
 
 		async getPhotos() {
@@ -89,7 +109,28 @@ export default {
 				if (!response.data.message) {
 					this.photos = response.data;
 					for (let i = 0; i < this.photos.length; i++) {
-					this.photos[i].File = 'data:image/*;base64,' + this.photos[i].File
+						this.photos[i].File = 'data:image/*;base64,' + this.photos[i].File
+						this.comments[this.photos[i].photoId] = []
+						this.likes[this.photos[i].photoId] = []
+						if (this.photos[i].commentTexts) {
+							for (let j = 0; j < this.photos[i].commentTexts.length; j++) {
+								this.comments[this.photos[i].photoId].push({
+									commentId: this.photos[i].commentIds[j],
+									commentText: this.photos[i].commentTexts[j],
+									CommentAuthor: this.photos[i].commentAuthors[j],
+									CommentDates: this.photos[i].commentDates[j],
+								})
+							}
+						}
+						if (this.photos[i].likes) {
+							for (let j = 0; j < this.photos[i].likes.length; j++) {
+								this.likes[this.photos[i].photoId].push({
+									likeId: this.photos[i].likeIds[j],
+									likeAuthor: this.photos[i].likes[j],
+									likeDates: this.photos[i].likeDates[j],
+								})
+							}
+						}
 					}
 					console.log(this.photos);
 				}
@@ -265,6 +306,32 @@ export default {
 				console.log(this.errormsg)
 			}
 		},
+
+		async commentPhoto(id) {
+			this.loading = true;
+			this.errormsg = null;
+			const formData = new FormData();
+			formData.append('text', this.comment_text);
+			formData.append('authorId', this.user.userId);
+			formData.append('photoId', id);
+
+			try {
+				let response = await this.$axios.post("/comments/", formData, {
+						headers: {
+							'Authorization': this.user.userId,
+						}
+					}
+				);
+				this.loading = false;
+				console.log("Comment added")
+				this.search_username = this.user.username
+				this.getProfile()
+
+			} catch (e) {
+				this.errormsg = e.toString();
+				console.log(this.errormsg)
+			}
+		},
 	},
 	mounted() {
 		if (this.user.userId == this.profile.userId) {
@@ -283,7 +350,7 @@ export default {
 		<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 
 			<h1 class="h2">
-				Profile of {{ profile.username }} 
+				Profile of {{ profile.username }}
 			</h1>
 			
 			<div v-if="isOwner" class="btn-toolbar mb-2 mb-md-0">
@@ -336,9 +403,37 @@ export default {
 						<p>Date: {{ new Date(photo.date).toLocaleDateString() }}</p>
 					</td>
 					<td>
-						<button v-if="isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="deletePhoto(photo.photoId)">Delete</button>
+						<tr>
+							<td>
+								<button v-if="isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="deletePhoto(photo.photoId)">Delete</button>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<button type="submit" class="btn btn-sm btn-outline-primary" @click="likePhoto(photo.photoId)">Like</button>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<button type="submit" class="btn btn-sm btn-outline-primary" @click="commentPhoto(photo.photoId)">Comment</button>
+							</td>
+							<td>
+								<input v-model="comment_text" placeholder="Enter comment">
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<div class="comments-box">
+									<p v-for="(comment, key) in photo.commentTexts" :key="comment.commentId">
+										{{photo.commentIds[key]}} - {{ comment }} 
+									</p>
+									<!-- <button type="submit" class="btn btn-sm btn-outline-primary"> Delete</button> -->
+								</div>
+							</td>
+						</tr>
 					</td>
 				</tr>
+				
 
 			</div>
 			<div v-else>
@@ -363,5 +458,11 @@ export default {
 	max-width: 300px;
 	height: auto;
 }
-
+.comments-box {
+  border: 1px solid #ccc;
+  margin-top: 10px;
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
 </style>
