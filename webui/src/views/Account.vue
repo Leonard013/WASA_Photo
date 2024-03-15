@@ -123,8 +123,13 @@ export default {
 				this.loading = false;
 				window.location.reload();
 			} catch (e) {
-				this.errormsg = e.toString();
-				console.log(this.errormsg)
+				if (e.response.status == 403) {
+					this.errormsg = "Banned from the user";
+					console.log(this.errormsg)
+				} else {
+					this.errormsg = e.toString();
+					console.log(this.errormsg)
+				}
 			}
 		},
 
@@ -301,7 +306,6 @@ export default {
 				<button v-if="isFollowing" type="submit" class="btn btn-sm btn-outline-primary" @click="unfollowUser">Unfollow</button>
 				<button v-if="!hasBanned" type="submit" class="btn btn-sm btn-outline-primary" @click="banUser">Ban</button>
 				<button v-if="hasBanned" type="submit" class="btn btn-sm btn-outline-primary" @click="unbanUser">Unban</button>
-				
 			</div>
 
 			<div>
@@ -314,30 +318,36 @@ export default {
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 
-		<div v-if="isOwner" >
-			Account ID: {{ this.profile.userId }}
-			<br>
-			<p v-for = "(value, key) in this.profile" :key="key">
-				{{ key }}: {{ value }}
-			</p>
+		<div v-if="!isBanned">
+			<div v-if="isOwner" >
+				Account ID: {{ this.profile.userId }}
+				<br>
+				<p v-for = "(value, key) in this.profile" :key="key">
+					{{ key }}: {{ value }}
+				</p>
+			</div>
+
+			<div v-if="photos" v-for="photo in photos" :key="photo.photoId" class="photo-entry">
+				<tr>
+					<td>
+						<h3>{{ photo.title }}</h3>
+						<img :src="photo.File" alt="Photo" class="photo-container">
+						<p>PhotoId: {{ photo.photoId }}</p>
+						<p>Date: {{ new Date(photo.date).toLocaleDateString() }}</p>
+					</td>
+					<td>
+						<button v-if="isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="deletePhoto(photo.photoId)">Delete</button>
+					</td>
+				</tr>
+
+			</div>
+			<div v-else>
+				<p>No photos</p>
+			</div>
 		</div>
 
-		<div v-if="photos" v-for="photo in photos" :key="photo.photoId" class="photo-entry">
-			<tr>
-				<td>
-					<h3>{{ photo.title }}</h3>
-					<img :src="photo.File" alt="Photo" class="photo-container">
-					<p>PhotoId: {{ photo.photoId }}</p>
-					<p>Date: {{ new Date(photo.date).toLocaleDateString() }}</p>
-				</td>
-				<td>
-					<button type="submit" class="btn btn-sm btn-outline-primary" @click="deletePhoto(photo.photoId)">Delete</button>
-				</td>
-			</tr>
-
-		</div>
-		<div v-else>
-			<p>No photos</p>
+		<div v-if="isBanned && !isOwner">
+			you are banned from seeing this profile
 		</div>
 
 	</div>

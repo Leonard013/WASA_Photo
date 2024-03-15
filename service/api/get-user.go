@@ -40,9 +40,11 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	err = rt.db.IfBanned(id, bannerId) // check if it is blocked
 	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
+		ctx.Logger.Error(err)
 		return
 	} else if errors.Is(err, nil) {
 		w.WriteHeader(http.StatusForbidden)
+		ctx.Logger.Error(http.StatusForbidden)
 		return
 	}
 
