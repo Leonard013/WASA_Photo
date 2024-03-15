@@ -54,16 +54,16 @@ export default {
 			console.log(this.user)
 			console.log(this.profile)
 
-			if ((this.user.banned == null) || !(this.user.isBanned.includes(this.profile.userId)) ) { // Check if user is banned from the user_profile page
-				this.isBanned = false;
-			} else {
-				this.isBanned = true;
-			}
-
-			if ((this.user.isBanned == null) || !(this.user.isBanned.includes(this.profile.userId)) ) { // Check if user is banned from the user_profile page
+			if ((this.user.banned == null) || !(this.user.banned.includes(this.profile.userId)) ) { // Check if user is banned from the user_profile page
 				this.hasBanned = false;
 			} else {
 				this.hasBanned = true;
+			}
+
+			if ((this.user.isBanned == null) || !(this.user.isBanned.includes(this.profile.userId)) ) { // Check if user is banned from the user_profile page
+				this.isBanned = false;
+			} else {
+				this.isBanned = true;
 			}
 
 			if ((this.user.following == null) || !(this.user.following.includes(this.profile.userId)) ) { // Check if user is following the user_profile page
@@ -216,50 +216,50 @@ export default {
 			}
 		},
 
-		// async banUser() {
-		// 	this.loading = true;
-		// 	this.errormsg = null;
-		// 	try {
-		// 		let response = await this.$axios.post("/ban/", {
-		// 			username: this.profile.username,
-		// 			userId: this.user.userId
-		// 		}, {
-		// 				headers: {
-		// 					'Authorization': this.user.userId,
-		// 				}
-		// 			}
-		// 		);
-		// 		this.loading = false;
-		// 		console.log("User banned")
-		// 		this.search_username = this.user.username
-		// 		this.getProfile()
+		async banUser() {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				let response = await this.$axios.post("/ban/", {
+					username: this.profile.username,
+					userId: this.user.userId
+				}, {
+						headers: {
+							'Authorization': this.user.userId,
+						}
+					}
+				);
+				this.loading = false;
+				console.log("User banned")
+				this.search_username = this.user.username
+				this.getProfile()
 
-		// 	} catch (e) {
-		// 		this.errormsg = e.toString();
-		// 		console.log(this.errormsg)
-		// 	}
-		// },
+			} catch (e) {
+				this.errormsg = e.toString();
+				console.log(this.errormsg)
+			}
+		},
 
-		// async unbanUser() {
-		// 	this.loading = true;
-		// 	this.errormsg = null;
-		// 	try {
-		// 		let response = await this.$axios.delete("/ban/"+this.profile.username, {
-		// 				headers: {
-		// 					'Authorization': this.user.userId,
-		// 				}
-		// 			}
-		// 		);
-		// 		this.loading = false;
-		// 		console.log("User unbanned")
-		// 		this.search_username = this.user.username
-		// 		this.getProfile()
+		async unbanUser() {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				let response = await this.$axios.delete("/ban/"+this.profile.username, {
+						headers: {
+							'Authorization': this.user.userId,
+						}
+					}
+				);
+				this.loading = false;
+				console.log("User unbanned")
+				this.search_username = this.user.username
+				this.getProfile()
 
-		// 	} catch (e) {
-		// 		this.errormsg = e.toString();
-		// 		console.log(this.errormsg)
-		// 	}
-		// },
+			} catch (e) {
+				this.errormsg = e.toString();
+				console.log(this.errormsg)
+			}
+		},
 	},
 	mounted() {
 		if (this.user.userId == this.profile.userId) {
@@ -303,8 +303,6 @@ export default {
 				<button v-if="hasBanned" type="submit" class="btn btn-sm btn-outline-primary" @click="unbanUser">Unban</button>
 				
 			</div>
-
-
 
 			<div>
 				<input v-model="search_username" placeholder="Enter username you are looking for">
