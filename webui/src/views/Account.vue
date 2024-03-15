@@ -332,6 +332,31 @@ export default {
 				console.log(this.errormsg)
 			}
 		},
+
+		async uncommentPhoto(photo_id,comment_id) {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				let response = await this.$axios.delete("/comments/"+comment_id, {
+						headers: {
+							'Authorization': this.user.userId,
+							'userId': this.user.userId,
+							'photoId': photo_id
+						}
+					}
+				);
+				this.loading = false;
+				console.log("Comment deleted")
+				this.search_username = this.user.username
+				this.getProfile()
+
+			} catch (e) {
+				this.errormsg = e.toString();
+				console.log(this.errormsg)
+			}
+		},
+
+
 	},
 	mounted() {
 		if (this.user.userId == this.profile.userId) {
@@ -424,10 +449,16 @@ export default {
 						<tr>
 							<td colspan="2">
 								<div class="comments-box">
-									<p v-for="(comment, key) in photo.commentTexts" :key="comment.commentId">
-										{{photo.commentIds[key]}} - {{ comment }} 
-									</p>
-									<!-- <button type="submit" class="btn btn-sm btn-outline-primary"> Delete</button> -->
+									<tr v-for="(comment, key) in photo.commentTexts" :key="comment.commentId">
+										<td>
+											<p>
+												{{photo.commentAuthors[key]}}:  {{ comment }} 
+											</p>
+										</td>
+										<td>
+											<button v-if="photo.commentAuthors[key] == user.username" type="submit" class="btn btn-sm btn-outline-primary" @click="uncommentPhoto(photo.photoId, photo.commentIds[key])"> Delete</button>
+										</td>
+									</tr>
 								</div>
 							</td>
 						</tr>

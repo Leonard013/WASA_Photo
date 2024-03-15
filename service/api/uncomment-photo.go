@@ -14,6 +14,13 @@ import (
 // The user must be already logged in.
 func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
+	// var info Uncomment
+	// _ = json.NewDecoder(r.Body).Decode(&info)
+	// _ = r.Body.Close()
+	// photoId := info.PhotoId
+	// userId := info.UserId
+	// ctx.Logger.Info(photoId)
+	// ctx.Logger.Info(userId)
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
@@ -38,6 +45,8 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		}
 		return
 	}
+
+	
 
 	err = rt.db.IfBanned(authorId, userId) // check if it is blocked
 	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {

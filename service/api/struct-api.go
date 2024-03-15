@@ -77,6 +77,11 @@ type PhotoForStream struct { // PhotoForStream represents a photo for the stream
 	CommentDates []string `json:"commentDates"`
 }
 
+type Uncomment struct {
+	PhotoId string `json:"photoId"`
+	UserId  string `json:"userId"`
+}
+
 
 func SavePhoto(file multipart.File, id string) (string, error) {
 	fileData, err := io.ReadAll(file)

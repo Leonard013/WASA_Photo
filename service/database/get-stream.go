@@ -87,8 +87,13 @@ func (db *appdbimpl) GetStream(streamId string) ([]PhotoForStream, error) {
 				if !errors.Is(err, nil) {
 					return nil, err
 				}
+				var comment_username string
+				err = db.c.QueryRow("SELECT username FROM Users WHERE userId=?", comment_author).Scan(&comment_username)
+				if !errors.Is(err, nil) {
+					return nil, err
+				} 
 				commentIds = append(commentIds, commentId)
-				commentAuthors = append(commentAuthors, comment_author)
+				commentAuthors = append(commentAuthors, comment_username)
 				commentTexts = append(commentTexts, comment_text)
 				commentDates = append(commentDates, comment_date)
 			}
