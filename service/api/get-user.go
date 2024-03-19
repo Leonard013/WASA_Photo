@@ -24,7 +24,6 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 	
 	username := ps.ByName("username")
 	id, err := rt.db.GetUserId(username)
@@ -58,8 +57,6 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	
-
 	user := User{
 		UserId:   id,
 		Username: username,
@@ -68,6 +65,8 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		Banned: info.Banned,
 		IsBanned: info.IsBanned,
 	}
+
+	ctx.Logger.Infof("User %s info retrieved", username)
 
 	_ = json.NewEncoder(w).Encode(user)
 

@@ -21,8 +21,9 @@ export default {
 			isBanned: null,
 			isFollowing: null,
 
-			comment_text: null,
+			comment_text: {},
 
+			new_username: null,
 			
 
 		}
@@ -137,6 +138,8 @@ export default {
 				if (response.data.userId == this.user.userId) {
 					sessionStorage.setItem('User', JSON.stringify(response.data));
 					this.user = response.data;
+					sessionStorage.setItem('Profile', JSON.stringify(response.data));
+					this.profile = response.data;
 				} else {
 					sessionStorage.setItem('Profile', JSON.stringify(response.data));
 					this.profile = response.data;
@@ -294,7 +297,7 @@ export default {
 			this.loading = true;
 			this.errormsg = null;
 			const formData = new FormData();
-			formData.append('text', this.comment_text);
+			formData.append('text', this.comment_text[id]);
 			formData.append('authorId', this.user.userId);
 			formData.append('photoId', id);
 
@@ -308,6 +311,7 @@ export default {
 				this.loading = false;
 				console.log("Comment added")
 				this.search_username = this.user.username
+				this.comment_text[id] = null
 				this.getProfile()
 
 			} catch (e) {
@@ -383,6 +387,34 @@ export default {
 				this.errormsg = e.toString();
 				console.log(this.errormsg)
 			}
+		},
+		
+		async changeUsername() {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				let response = await this.$axios.put("/users/"+this.user.username, {
+					username: this.new_username
+				}, {
+						headers: {
+							'Authorization': this.user.userId,
+							'userId': this.user.userId,
+						}
+					}
+				);
+				this.loading = false;
+				console.log("Username changed to ", this.new_username)
+				this.search_username = this.new_username
+				this.getProfile()
+			} catch (e) {
+				if (e.response.status == 403) {
+					this.errormsg = "Username already taken";
+					console.log(this.errormsg)
+				} else {
+					this.errormsg = e.toString();
+					console.log(this.errormsg)
+				}
+			}
 		}
 
 
@@ -418,8 +450,10 @@ export default {
 							<input type="file" ref="photoUploaded" accept="image/png">
 						</td>
 						<button  type="submit" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">Add Photo</button>
+
 					</tr>
 				</div>
+
 			</div>
 
 			<div v-if="!isBanned && !isOwner">
@@ -430,7 +464,7 @@ export default {
 			</div>
 
 			<div>
-				<input v-model="search_username" placeholder="Enter username you are looking for">
+				<input v-model="search_username" placeholder="Profile you are looking for">
 				<button type="submit" class="btn btn-sm btn-outline-primary" @click="getProfile">Search</button>
 				<button v-if="!isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="backToProfile">Back to Profile</button>
 			</div>
@@ -440,11 +474,30 @@ export default {
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 
 		<div v-if="!isBanned">
-			<p>
-				Followers: {{ profile.followers ? profile.followers.length : 0 }}
-				<br>
-				Following: {{ profile.following ? profile.following.length : 0 }}
-			</p>
+			<div>
+				<tr>
+					<td>
+						<tr>
+							<td>
+								<input v-model="new_username" placeholder="Enter new username">
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<button type="submit" class="btn btn-sm btn-outline-primary" @click="changeUsername">Change Username</button>
+							</td>
+						</tr>
+					</td>
+					<td>
+						<p>
+							Followers: {{ profile.followers ? profile.followers.length : 0 }}
+							<br>
+							Following: {{ profile.following ? profile.following.length : 0 }}
+						</p>
+					</td>
+				</tr>
+			</div>
+			
 			<div v-if="isOwner" >
 				Account ID: {{ this.profile.userId }}
 				<br>
@@ -481,7 +534,7 @@ export default {
 								<button type="submit" class="btn btn-sm btn-outline-primary" @click="commentPhoto(photo.photoId)">Comment</button>
 							</td>
 							<td>
-								<input v-model="comment_text" placeholder="Enter comment">
+								<input v-model="comment_text[photo.photoId]" placeholder="Enter comment">
 							</td>
 						</tr>
 						<tr>

@@ -19,6 +19,8 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	_ = r.Body.Close()
 	username := new_username.Username
 
+
+
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
@@ -31,20 +33,20 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	userId := r.Header.Get("userId")
-	u, err := rt.db.GetUserId(username)
-	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	} else if !errors.Is(err, nil) {
+
+	_, err = rt.db.GetUserId(username)
+
+	
+
+
+	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
-	if userId != u {
+	} else if errors.Is(err, nil) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-	_ = r.ParseForm()
-	username = r.FormValue("username")
+
 	if len(username) > 20 || len(username) < 3 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -54,11 +56,12 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	ctx.Logger.Infof("Username changed to %s", username)
+	ctx.Logger.Infof("Username changed from '%s' to '%s'",ps.ByName("username"), username)
 
-	_ = json.NewEncoder(w).Encode(User{
-		Username: username,
-		UserId:   userId,
-	})
+	var user User
+	user.Username = username
+	user.UserId = userId
+
+	_ = json.NewEncoder(w).Encode(user)
 
 }
