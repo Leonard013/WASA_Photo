@@ -41,7 +41,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	user := User{
+	user := User{ // User struct
 		Username: username,
 		UserId:   id,
 		Followers: info.Followers,
