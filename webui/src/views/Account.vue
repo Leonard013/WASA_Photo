@@ -124,7 +124,7 @@ export default {
 			this.loading = false;
 		},
 
-		async getProfile() {
+		async getProfile(reset = false) {
 			this.loading = true;
 			this.errormsg = null;
 			try {
@@ -138,8 +138,10 @@ export default {
 				if (response.data.userId == this.user.userId) {
 					sessionStorage.setItem('User', JSON.stringify(response.data));
 					this.user = response.data;
-					sessionStorage.setItem('Profile', JSON.stringify(response.data));
-					this.profile = response.data;
+					if (reset) {
+						sessionStorage.setItem('Profile', JSON.stringify(response.data));
+						this.profile = response.data;
+					}
 				} else {
 					sessionStorage.setItem('Profile', JSON.stringify(response.data));
 					this.profile = response.data;
@@ -405,7 +407,7 @@ export default {
 				this.loading = false;
 				console.log("Username changed to ", this.new_username)
 				this.search_username = this.new_username
-				this.getProfile()
+				this.getProfile(true)
 			} catch (e) {
 				if (e.response.status == 403) {
 					this.errormsg = "Username already taken";
@@ -476,7 +478,7 @@ export default {
 		<div v-if="!isBanned">
 			<div>
 				<tr>
-					<td>
+					<td v-if="isOwner">
 						<tr>
 							<td>
 								<input v-model="new_username" placeholder="Enter new username">
