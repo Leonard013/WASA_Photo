@@ -31,8 +31,10 @@ export default {
 	methods: {
 
 		backToProfile() {
-			sessionStorage.setItem('Profile', JSON.stringify(this.user));
-			window.location.reload();
+			// sessionStorage.setItem('Profile', JSON.stringify(this.user));
+			// window.location.reload();
+			this.search_username = this.user.username
+			this.getProfile(true)
 		},
 
 		async deletePhoto(Id) {
@@ -56,9 +58,6 @@ export default {
 		},
 
 		getInfo() {
-			console.log(this.user)
-			console.log(this.profile)
-
 			if (this.user.banned == null) {
 				this.hasBanned = false;
 				this.user.banned = [];
@@ -112,19 +111,27 @@ export default {
 					for (let i = 0; i < this.photos.length; i++) {
 						this.photos[i].File = 'data:image/*;base64,' + this.photos[i].File
 					}
+					
 					console.log(this.photos);
 				}
 				this.loading = false;
 				
 			} catch (e) {
-				this.errormsg = e.toString();
-				console.log(this.errormsg)
+				if (e.response.status == 403) {
+					this.errormsg = "Banned from the user";
+					console.log(this.errormsg)
+					this.search_username = this.user.username
+					this.getProfile(true)
+				} else {
+					this.errormsg = e.toString();
+					console.log(this.errormsg)
+				}
 			}
 			
 			this.loading = false;
 		},
 
-		async getProfile(reset = false) {
+		async getProfile(reset = false, test = true) {
 			this.loading = true;
 			this.errormsg = null;
 			try {
@@ -147,11 +154,15 @@ export default {
 					this.profile = response.data;
 				}
 				this.loading = false;
-				window.location.reload();
+				if (test) {
+					window.location.reload();
+				}
+
 			} catch (e) {
 				if (e.response.status == 403) {
-					this.errormsg = "Banned from the user";
+					this.errormsg = "Banned from the user.";
 					console.log(this.errormsg)
+					
 				} else {
 					this.errormsg = e.toString();
 					console.log(this.errormsg)
@@ -427,7 +438,7 @@ export default {
 		} else {
 			this.getInfo()
 		}
-		console.log("mounted_Account")
+		console.log("mounted_Account", new Date().toLocaleTimeString());
 		this.getPhotos()
 	}
 }
@@ -442,7 +453,7 @@ export default {
 			</h2>
 			
 			<div v-if="isOwner" class="btn-toolbar mb-2 mb-md-0">
-
+				<button type="submit" class="btn btn-sm btn-outline-primary" @click="backToProfile">Refresh</button>
 				<div class="btn-group me-2">
 					<tr>
 						<td>
@@ -478,15 +489,15 @@ export default {
 		<div v-if="!isBanned">
 			<div>
 				<tr>
-					<td v-if="isOwner">
+					<td>
 						<tr>
 							<td>
-								<input v-model="new_username" placeholder="Enter new username">
+								<input v-if="isOwner" v-model="new_username" placeholder="Enter new username">
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<button type="submit" class="btn btn-sm btn-outline-primary" @click="changeUsername">Change Username</button>
+								<button v-if="isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="changeUsername">Change Username</button>
 							</td>
 						</tr>
 					</td>
