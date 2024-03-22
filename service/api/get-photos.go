@@ -25,7 +25,7 @@ func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	username := ps.ByName("author") 
+	username := ps.ByName("author")
 	id, err := rt.db.GetUserId(username) // Owner of the photos
 	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)
@@ -46,7 +46,6 @@ func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	var photos []PhotoForStream
-
 	db_photos, err := rt.db.GetPhotos(id)
 	if !errors.Is(err, nil) {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -60,7 +59,6 @@ func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprout
 
 	photos = make([]PhotoForStream, len(db_photos))
 	for i, v := range db_photos {
-		
 		photos[i] = PhotoForStream(v) // direct conversion is possible since the fields are the same
 	}
 

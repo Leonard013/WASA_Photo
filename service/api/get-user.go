@@ -24,7 +24,7 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	
+
 	username := ps.ByName("username")
 	id, err := rt.db.GetUserId(username)
 	if !errors.Is(err, nil) && errors.Is(err, sql.ErrNoRows) {
@@ -58,12 +58,12 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 
 	user := User{
-		UserId:   id,
-		Username: username,
+		UserId:    id,
+		Username:  username,
 		Followers: info.Followers,
 		Following: info.Following,
-		Banned: info.Banned,
-		IsBanned: info.IsBanned,
+		Banned:    info.Banned,
+		IsBanned:  info.IsBanned,
 	}
 
 	ctx.Logger.Infof("User %s info retrieved", username)

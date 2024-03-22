@@ -67,8 +67,6 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-
-
 	ctx.Logger.Info("User ", name, " followed ", username)
 	user := User{
 		Username: username,

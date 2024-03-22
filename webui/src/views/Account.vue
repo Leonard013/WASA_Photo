@@ -11,9 +11,9 @@ export default {
 			loading: false,
 			photos: null,
 
-			title: null,
+			title: "",
 			photoUploaded: null,
-			search_username: null,
+			search_username: "",
 
 			isOwner: false,
 
@@ -23,7 +23,7 @@ export default {
 
 			comment_text: {},
 
-			new_username: null,
+			new_username: "",
 			
 
 		}
@@ -36,6 +36,8 @@ export default {
 			this.search_username = this.user.username
 			this.getProfile(true)
 		},
+
+		
 
 		async deletePhoto(Id) {
 			this.loading = true;
@@ -192,9 +194,14 @@ export default {
 						console.log("Photo uploaded")
 					}).catch(
 						(error) => {
+							if (error.response.status == 400 ) {
+								this.errormsg = "No photo uploaded"
+								console.log(this.errormsg)
+							} else {
+								this.errormsg = error.toString();
+								console.log(this.errormsg)
+							}
 							this.loading = false
-							console.log("Photo not uploaded")
-							console.log(error)
 							this.photoUploaded = null
 						}
 					)
@@ -307,29 +314,33 @@ export default {
 		},
 
 		async commentPhoto(id) {
-			this.loading = true;
-			this.errormsg = null;
-			const formData = new FormData();
-			formData.append('text', this.comment_text[id]);
-			formData.append('authorId', this.user.userId);
-			formData.append('photoId', id);
+			if (this.comment_text[id].length > 0 && this.comment_text[id].length <= 300) {
+				this.loading = true;
+				this.errormsg = null;
+				const formData = new FormData();
+				formData.append('text', this.comment_text[id]);
+				formData.append('authorId', this.user.userId);
+				formData.append('photoId', id);
 
-			try {
-				let response = await this.$axios.post("/comments/", formData, {
-						headers: {
-							'Authorization': this.user.userId,
+				try {
+					let response = await this.$axios.post("/comments/", formData, {
+							headers: {
+								'Authorization': this.user.userId,
+							}
 						}
-					}
-				);
-				this.loading = false;
-				console.log("Comment added")
-				this.search_username = this.user.username
-				this.comment_text[id] = null
-				this.getProfile()
+					);
+					this.loading = false;
+					console.log("Comment added")
+					this.search_username = this.user.username
+					this.comment_text[id] = null
+					this.getProfile()
 
-			} catch (e) {
-				this.errormsg = e.toString();
-				console.log(this.errormsg)
+				} catch (e) {
+					this.errormsg = e.toString();
+					console.log(this.errormsg)
+				}
+			} else {
+				this.errormsg = "The length of the comment must be between 1 and 300 characters"
 			}
 		},
 
@@ -462,7 +473,7 @@ export default {
 						<td>
 							<input type="file" ref="photoUploaded" accept="image/png">
 						</td>
-						<button  type="submit" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">Add Photo</button>
+						<button v-if="title.length <= 30 && title.length > 0" type="submit" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">Add Photo</button>
 
 					</tr>
 				</div>
@@ -478,7 +489,7 @@ export default {
 
 			<div>
 				<input v-model="search_username" placeholder="Profile you are looking for">
-				<button type="submit" class="btn btn-sm btn-outline-primary" @click="getProfile">Search</button>
+				<button v-if="search_username.length >= 3 && search_username.length <= 20" type="submit" class="btn btn-sm btn-outline-primary" @click="getProfile">Search</button>
 				<button v-if="!isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="backToProfile">Back to Profile</button>
 			</div>
 
@@ -497,7 +508,7 @@ export default {
 						</tr>
 						<tr>
 							<td>
-								<button v-if="isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="changeUsername">Change Username</button>
+								<button v-if="isOwner && (new_username.length >= 3 && new_username.length <= 20)" type="submit" class="btn btn-sm btn-outline-primary" @click="changeUsername">Change Username</button>
 							</td>
 						</tr>
 					</td>
@@ -547,7 +558,7 @@ export default {
 								<button type="submit" class="btn btn-sm btn-outline-primary" @click="commentPhoto(photo.photoId)">Comment</button>
 							</td>
 							<td>
-								<input v-model="comment_text[photo.photoId]" placeholder="Enter comment">
+								<input v-model="comment_text[photo.photoId]" placeholder="Enter comment Max 300 char">
 							</td>
 						</tr>
 						<tr>

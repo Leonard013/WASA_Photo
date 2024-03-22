@@ -32,12 +32,12 @@ type phtoId_userId struct {
 }
 
 type User struct { // User represents a user
-	UserId   string `json:"userId"`
-	Username string `json:"username"`
+	UserId    string   `json:"userId"`
+	Username  string   `json:"username"`
 	Followers []string `json:"followers"`
 	Following []string `json:"following"`
-	Banned   []string `json:"banned"`
-	IsBanned []string `json:"isBanned"`
+	Banned    []string `json:"banned"`
+	IsBanned  []string `json:"isBanned"`
 }
 
 type Photo struct { // Photo represents a photo
@@ -63,25 +63,24 @@ type Like struct { // Like represents a like
 }
 
 type PhotoForStream struct { // PhotoForStream represents a photo for the stream
-	PhotoId string    `json:"photoId"`
-	Title   string    `json:"title,omitempty"`
-	File    []byte    `json:"File"`
-	Author  string    `json:"author"`
-	Username string		`json:"username"`
-	Date    time.Time `json:"date"`
-	LikeIds []string  `json:"likeIds"`
-	LikeAuthors []string `json:"likeAuthors"`
-	CommentIds []string `json:"commentIds"`
-	CommentAuthors []string `json:"commentAuthors"`
-	CommentTexts []string `json:"commentTexts"`
-	CommentDates []string `json:"commentDates"`
+	PhotoId        string    `json:"photoId"`
+	Title          string    `json:"title,omitempty"`
+	File           []byte    `json:"File"`
+	Author         string    `json:"author"`
+	Username       string    `json:"username"`
+	Date           time.Time `json:"date"`
+	LikeIds        []string  `json:"likeIds"`
+	LikeAuthors    []string  `json:"likeAuthors"`
+	CommentIds     []string  `json:"commentIds"`
+	CommentAuthors []string  `json:"commentAuthors"`
+	CommentTexts   []string  `json:"commentTexts"`
+	CommentDates   []string  `json:"commentDates"`
 }
 
 type Uncomment struct {
 	PhotoId string `json:"photoId"`
 	UserId  string `json:"userId"`
 }
-
 
 func SavePhoto(file multipart.File, id string) (string, error) {
 	fileData, err := io.ReadAll(file)
@@ -91,7 +90,6 @@ func SavePhoto(file multipart.File, id string) (string, error) {
 
 	// Specify the directory to save the file
 	uploadPath := "/home/wasa/test-init/WASA/photos"
-	
 
 	// Create/Open the file
 	filePath := uploadPath + "/" + id + ".png"

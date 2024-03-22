@@ -2,11 +2,13 @@ package database
 
 import "errors"
 
-
-
 func (db *appdbimpl) GetUserInfo(userId string) (UserInfo, error) {
 	var info UserInfo
 	rows, err := db.c.Query("SELECT f.followedId FROM Follow f WHERE f.profileId = ? ", userId)
+	if rows.Err() != nil {
+		return info, rows.Err()
+	}
+
 	if !errors.Is(err, nil) {
 		return info, err
 	}
@@ -20,6 +22,10 @@ func (db *appdbimpl) GetUserInfo(userId string) (UserInfo, error) {
 		info.Following = append(info.Following, followedId)
 	}
 	rows, err = db.c.Query("SELECT f.profileId FROM Follow f WHERE f.followedId = ? ", userId)
+	if rows.Err() != nil {
+		return info, rows.Err()
+	}
+
 	if !errors.Is(err, nil) {
 		return info, err
 	}
@@ -33,6 +39,10 @@ func (db *appdbimpl) GetUserInfo(userId string) (UserInfo, error) {
 		info.Followers = append(info.Followers, profileId)
 	}
 	rows, err = db.c.Query("SELECT b.bannedId FROM Ban b WHERE b.bannerId = ? ", userId)
+	if rows.Err() != nil {
+		return info, rows.Err()
+	}
+
 	if !errors.Is(err, nil) {
 		return info, err
 	}
@@ -46,6 +56,10 @@ func (db *appdbimpl) GetUserInfo(userId string) (UserInfo, error) {
 		info.Banned = append(info.Banned, bannedId)
 	}
 	rows, err = db.c.Query("SELECT b.bannerId FROM Ban b WHERE b.bannedId = ? ", userId)
+	if rows.Err() != nil {
+		return info, rows.Err()
+	}
+
 	if !errors.Is(err, nil) {
 		return info, err
 	}

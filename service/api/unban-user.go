@@ -35,7 +35,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	bannerId := r.Header.Get("userId") // the user who wants to unban
+	bannerId := r.Header.Get("userId")      // the user who wants to unban
 	err = rt.db.IfBanned(unbanId, bannerId) // check if it is blocked
 	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)

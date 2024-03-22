@@ -19,8 +19,6 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	_ = r.Body.Close()
 	username := new_username.Username
 
-
-
 	_ = r.ParseForm()
 	token := r.Header.Get("Authorization")
 	err := rt.db.CheckToken(token)
@@ -35,9 +33,6 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	userId := r.Header.Get("userId")
 
 	_, err = rt.db.GetUserId(username)
-
-	
-
 
 	if !errors.Is(err, nil) && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -56,7 +51,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	ctx.Logger.Infof("Username changed from '%s' to '%s'",ps.ByName("username"), username)
+	ctx.Logger.Infof("Username changed from '%s' to '%s'", ps.ByName("username"), username)
 
 	var user User
 	user.Username = username

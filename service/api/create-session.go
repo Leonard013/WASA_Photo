@@ -42,8 +42,8 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 
 	user := User{
-		Username: username,
-		UserId:   id,
+		Username:  username,
+		UserId:    id,
 		Followers: info.Followers,
 		Following: info.Following,
 		Banned:    info.Banned,

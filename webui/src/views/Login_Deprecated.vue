@@ -1,5 +1,4 @@
 
-
 <script>
 export default {
 	data: function() {
@@ -7,68 +6,52 @@ export default {
 			errormsg: null,
 			loading: false,
 			username: null,
+			name: null,
 			userId: null,
-
 			some_data: null,
+			User: null,
+			visible: true,
 		}
 	},
 	methods: {
-		async refresh() {
+
+		async login() {
 			this.loading = true;
 			this.errormsg = null;
-
-			this.$axios.get("/").then((response) => {
-				this.some_data = response.data;
+			this.name = document.getElementById("username").value;
+			try {
+				let response = await this.$axios.post("/session", {username: this.name});
+				sessionStorage.setItem('User', JSON.stringify(response.data));
+				sessionStorage.setItem('LoggedIn', true);
 				console.log(response.data);
-			}).catch(
-				(error) => {
-					console.log(error);
-				}
-			);
+				this.$router.push('/account');
+			} catch (e) {
+				this.errormsg = e.toString();
+			}
+			this.name = null;
 			this.loading = false;
 		},
 
-		async login(usern) {
+		async refresh() {
 			this.loading = true;
 			this.errormsg = null;
-			var output = null;
-
-			sessionStorage.setItem('LoggedIn', true);
-			console.log(usern + " logged | Login_2");
-			this.$axios.post("/session", {username: usern}).then((response) => {
-					output = response.data;
-					if (output.banned == null) {
-						output.banned = [];
-					}
-					if (output.isBanned == null){
-						output.isBanned = [];
-					}
-					if (output.following == null) {
-						output.following = [];
-					}
-					if (output.followers == null) {
-					output.followers = [];
-					}
-					sessionStorage.setItem('User', JSON.stringify(output));
-					sessionStorage.setItem('Profile',JSON.stringify(output)) 
-					this.$router.push('/account');
-					console.log(output);
-					window.location.reload();
-				}).catch(
-					(error) => {
-						console.log(error);
-					}
-				);
-
+			try {
+				let response = await this.$axios.get("/");
+				this.some_data = response.data;
+			} catch (e) {
+				this.errormsg = e.toString();
+			}
+			console.log(response.data);
 			this.loading = false;
-
-		}
+		},
+		
 	},
 	mounted() {
 		if (sessionStorage.getItem('LoggedIn')) {
 			this.$router.push('/account');
 		}
-		console.log("mounted_Login_2");
+		console.log("marione");
+		this.refresh()
 	}
 }
 </script>
@@ -82,10 +65,20 @@ export default {
 
 		<div class="login-container">
 			<div class="form-group">
-				<input v-model="username" placeholder="Enter username" /> 
+				<label for="username">username</label>
+				<input type="text" id="username" v-model="username" placeholder="Enter username">
+				<button type="submit" class="login-button" @click="login()">Login</button>
 			</div>
-			<button @click="login(username)" class="login-button"> Login </button>
 		</div>
+
+		<div v-if="visible" class="box">
+			<box>
+				<p>
+					Leonardo
+				</p>
+			</box>
+		</div>
+
 	</div>
 </template>
 
