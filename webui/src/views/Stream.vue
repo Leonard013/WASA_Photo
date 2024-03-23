@@ -6,68 +6,15 @@ export default {
 	data: function() {
 		return {
 			user: JSON.parse(sessionStorage.getItem('User')),
-			profile: JSON.parse(sessionStorage.getItem('Profile')),
+			stream_over: false,
 			errormsg: null,
 			loading: false,
 			photos: [],
-
-			title: "",
-			photoUploaded: null,
-			search_username: "",
-
-			isOwner: false,
-
-			hasBanned: null,
-			isBanned: null,
-			isFollowing: null,
-
+			stream: [],
 			comment_text: {},
-
-			new_username: "",
-			
-
 		}
 	},
 	methods: {
-
-		async getProfile(reset = false, test = true) {
-			this.loading = true;
-			this.errormsg = null;
-			try {
-				let response = await this.$axios.get("/users/"+this.search_username, {
-						headers: {
-							'Authorization': this.user.userId,
-							'userId': this.user.userId
-						}
-					}
-				);
-				if (response.data.userId == this.user.userId) {
-					sessionStorage.setItem('User', JSON.stringify(response.data));
-					this.user = response.data;
-					if (reset) {
-						sessionStorage.setItem('Profile', JSON.stringify(response.data));
-						this.profile = response.data;
-					}
-				} else {
-					sessionStorage.setItem('Profile', JSON.stringify(response.data));
-					this.profile = response.data;
-				}
-				this.loading = false;
-				if (test) {
-					window.location.reload();
-				}
-
-			} catch (e) {
-				if (e.response.status == 403) {
-					this.errormsg = "Banned from the user.";
-					console.log(this.errormsg)
-					
-				} else {
-					this.errormsg = e.toString();
-					console.log(this.errormsg)
-				}
-			}
-		},
 
 		async commentPhoto(id) {
 			if (this.comment_text[id].length > 0 && this.comment_text[id].length <= 300) {
@@ -87,9 +34,8 @@ export default {
 					);
 					this.loading = false;
 					console.log("Comment added")
-					this.search_username = this.user.username
 					this.comment_text[id] = null
-					this.getProfile()
+					window.location.reload();
 
 				} catch (e) {
 					this.errormsg = e.toString();
@@ -114,8 +60,7 @@ export default {
 				);
 				this.loading = false;
 				console.log("Comment deleted")
-				this.search_username = this.user.username
-				this.getProfile()
+				window.location.reload();
 
 			} catch (e) {
 				this.errormsg = e.toString();
@@ -138,8 +83,7 @@ export default {
 				);
 				this.loading = false;
 				console.log("Photo liked")
-				this.search_username = this.user.username
-				this.getProfile()
+				window.location.reload();
 
 			} catch (e) {
 				this.errormsg = e.toString();
@@ -160,8 +104,7 @@ export default {
 				);
 				this.loading = false;
 				console.log("Photo unliked")
-				this.search_username = this.user.username
-				this.getProfile()
+				window.location.reload();
 
 			} catch (e) {
 				this.errormsg = e.toString();
@@ -172,6 +115,7 @@ export default {
 		async getMyStream() {
 			this.loading = true;
 			this.errormsg = null;
+
 			try {
 				let response = await this.$axios.get("/streams/" + this.user.userId, {
 						headers: {
@@ -180,53 +124,61 @@ export default {
 					}
 				);
 				this.loading = false;
-				if (response.data == "There are no photos in the stream") {
-					console.log(response.data)
-				} else {
-					this.photos = this.photos.concat(response.data);
-					this.photos = response.data.reverse();
-					for (let i = 0; i < this.photos.length; i++) {
-						this.photos[i].File = 'data:image/*;base64,' + this.photos[i].File
-					}
-					console.log("Stream loaded")
-					console.log(response.data)
+				this.photos = response.data.reverse();
+				for (let i = 0; i < this.photos.length; i++) {
+					this.photos[i].File = 'data:image/*;base64,' + this.photos[i].File
 				}
+				console.log(this.photos)
+				this.refreshStream();
 			} catch (e) {
 				this.errormsg = e.toString();
 				console.log(this.errormsg)
 			} 
 		},
 
+		async refreshStream() {
+
+			if (this.photos != null) {
+				if (this.photos.length > 20) { // take the first 20 elements and remove them from the slice
+					var slice = this.photos.slice(0, 20);
+					this.photos = this.photos.slice(20, this.photos.length);
+					this.stream = this.stream.concat(slice);
+					console.log(this.stream)
+				} else {
+					this.stream = this.stream.concat(this.photos);
+					this.photos = null;
+					this.stream_over = true;
+				}
+			}
+		},
+
 	},
 	mounted() {
 		console.log("mounted_Stream", new Date().toLocaleTimeString());
-		// this.getMyStream()
+		this.getMyStream();
+		
 	}
 }
 </script>
 
 <template>
-	<div>
+	<div v-cloak>
 		<div
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 			<h1 class="h2">Stream</h1>
 		</div>
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-		<div v-if="photos" v-for="photo in photos" :key="photo.photoId" class="photo-entry">
+		
+		<div v-if="stream" v-for="photo in stream" :key="photo.photoId" class="photo-entry">
 			<tr>
 				<td>
 					<h3>{{ photo.title }}</h3>
 					<img :src="photo.File" alt="Photo" class="photo-container">
-					<p>PhotoId: {{ photo.photoId }}</p>
+					<p>Author: {{ photo.username }}</p>
 					<p>Date: {{ new Date(photo.date).toLocaleDateString() }}</p>
 				</td>
 				<td>
-					<tr>
-						<td>
-							<button v-if="isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="deletePhoto(photo.photoId)">Delete Photo</button>
-						</td>
-					</tr>
 					<tr>
 						<td>
 							<button v-if="photo.likeAuthors ? !photo.likeAuthors.includes(user.userId) : true" type="submit" class="btn btn-sm btn-outline-primary" @click="likePhoto(photo.photoId)">Like</button>
@@ -263,14 +215,15 @@ export default {
 				</td>
 			</tr>
 		</div>
-		<div v-else>
-			<p>No photos</p>
-		</div>
 		<div>
-			<button type="button" class="btn btn-sm btn-outline-primary" @click="getMyStream">New</button>
+			<button v-if="!stream_over" type="button" class="btn btn-sm btn-outline-primary" @click="refreshStream">Refresh</button>
+			<p v-if="stream_over"> No more photos in the stream </p>
 		</div>
 	</div>
 </template>
 
 <style>
+[v-clock] {
+	display: none;
+}
 </style>

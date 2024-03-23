@@ -49,8 +49,10 @@ export default {
 					if (output.followers == null) {
 					output.followers = [];
 					}
+					var status = false;
+					var stream = [];
 					sessionStorage.setItem('User', JSON.stringify(output));
-					sessionStorage.setItem('Profile',JSON.stringify(output)) 
+					sessionStorage.setItem('Profile',JSON.stringify(output)); 
 					this.$router.push('/account');
 					console.log(output);
 					window.location.reload();

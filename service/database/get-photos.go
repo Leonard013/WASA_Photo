@@ -132,14 +132,6 @@ func (db *appdbimpl) GetPhotos(userId string) ([]PhotoForStream, error) {
 			CommentDates:   commentDates,
 		}
 
-		// var photo PhotoForStream
-
-		// photo.PhotoId = photoId
-		// photo.Title = title
-		// photo.File = data
-		// photo.Author = author
-		// photo.Date = t
-
 		photos = append(photos, photo)
 	}
 

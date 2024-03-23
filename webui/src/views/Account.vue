@@ -524,10 +524,10 @@ export default {
 			
 			<div v-if="isOwner" >
 				Account ID: {{ this.profile.userId }}
-				<br>
+				<!-- <br>
 				<p v-for = "(value, key) in this.profile" :key="key">
 					{{ key }}: {{ value }}
-				</p>
+				</p> -->
 			</div>
 
 			<div v-if="photos" v-for="photo in photos" :key="photo.photoId" class="photo-entry">
