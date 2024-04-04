@@ -54,8 +54,8 @@ func (db *appdbimpl) GetPhotos(userId string) ([]PhotoForStream, error) {
 		// ---------------------------------------------------------------------------------------------------------------
 
 		rows_2, err := db.c.Query("SELECT l.likeId, l.author FROM Likes l WHERE l.photoId = ? ", photoId)
-		if rows.Err() != nil {
-			return nil, rows.Err()
+		if rows_2.Err() != nil {
+			return nil, rows_2.Err()
 		}
 		if !errors.Is(err, nil) {
 			return nil, err
@@ -77,8 +77,8 @@ func (db *appdbimpl) GetPhotos(userId string) ([]PhotoForStream, error) {
 		}
 
 		rows_3, err := db.c.Query("SELECT c.commentId, c.author, c.text, c.date FROM Comments c WHERE c.photoId = ? ", photoId)
-		if rows.Err() != nil {
-			return nil, rows.Err()
+		if rows_3.Err() != nil {
+			return nil, rows_3.Err()
 		}
 
 		if !errors.Is(err, nil) {
