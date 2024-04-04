@@ -136,6 +136,7 @@ export default {
 		async getProfile(reset = false, test = true) {
 			this.loading = true;
 			this.errormsg = null;
+			console.log("getProfile executed")
 			try {
 				let response = await this.$axios.get("/users/"+this.search_username, {
 						headers: {
@@ -235,8 +236,6 @@ export default {
 				console.log("User followed")
 				this.search_username = this.user.username
 				this.getProfile()
-
-				
 				
 			} catch (e) {
 				this.errormsg = e.toString();
@@ -446,10 +445,17 @@ export default {
 	mounted() {
 		if (this.user.userId == this.profile.userId) {
 			this.isOwner = true;
+			this.search_username = this.user.username
+			this.getProfile(true,false)
+			this.search_username = ""
 		} else {
+			this.search_username = this.profile.username
+			this.getProfile(false,false)
+			this.search_username = ""
 			this.getInfo()
 		}
 		console.log("mounted_Account", new Date().toLocaleTimeString());
+		console.log(this.profile)
 		this.getPhotos()
 	}
 }
@@ -503,7 +509,9 @@ export default {
 					<td>
 						<tr>
 							<td>
-								<input v-if="isOwner" v-model="new_username" placeholder="Enter new username">
+								<div v-if="isOwner">
+									<input v-model="new_username" placeholder="Enter new username">
+								</div>
 							</td>
 						</tr>
 						<tr>

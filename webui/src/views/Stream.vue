@@ -217,7 +217,9 @@ export default {
 		</div>
 		<div>
 			<button v-if="!stream_over" type="button" class="btn btn-sm btn-outline-primary" @click="refreshStream">Refresh</button>
-			<p v-if="stream_over"> No more photos in the stream </p>
+			<div v-if="stream_over">
+				<p> No more photos in the stream </p>
+			</div>
 		</div>
 	</div>
 </template>
