@@ -86,7 +86,9 @@ export default {
 			<div class="form-group">
 				<input v-model="username" placeholder="Enter username" /> 
 			</div>
-			<button v-if="username.length >= 3 && username.length <= 20" @click="login(username)" class="login-button"> Login </button>
+			<div v-if="username.length >= 3 && username.length <= 20">
+				<button @click="login(username)" class="login-button"> Login </button>
+			</div>
 		</div>
 	</div>
 </template>

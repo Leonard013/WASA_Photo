@@ -167,8 +167,9 @@ export default {
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 			<h1 class="h2">Stream</h1>
 		</div>
-
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+		<div v-if="errormsg">
+			<ErrorMsg :msg="errormsg"></ErrorMsg>
+		</div>
 		
 		<div v-if="stream" v-for="photo in stream" :key="photo.photoId" class="photo-entry">
 			<tr>
@@ -181,8 +182,12 @@ export default {
 				<td>
 					<tr>
 						<td>
-							<button v-if="photo.likeAuthors ? !photo.likeAuthors.includes(user.userId) : true" type="submit" class="btn btn-sm btn-outline-primary" @click="likePhoto(photo.photoId)">Like</button>
-							<button v-if="photo.likeAuthors ? photo.likeAuthors.includes(user.userId) : false" type="submit" class="btn btn-sm btn-outline-primary" @click="unlikePhoto(photo.photoId)">Unlike</button>
+							<div v-if="photo.likeAuthors ? !photo.likeAuthors.includes(user.userId) : true">
+								<button type="submit" class="btn btn-sm btn-outline-primary" @click="likePhoto(photo.photoId)">Like</button>
+							</div>
+							<div v-if="photo.likeAuthors ? photo.likeAuthors.includes(user.userId) : false">
+								<button type="submit" class="btn btn-sm btn-outline-primary" @click="unlikePhoto(photo.photoId)">Unlike</button>
+							</div>
 						</td>
 						<td>
 							<p>Likes: {{ photo.likeIds ? photo.likeIds.length : 0 }}</p>
@@ -206,7 +211,9 @@ export default {
 										</p>
 									</td>
 									<td>
-										<button v-if="photo.commentAuthors[key] == user.username" type="submit" class="btn btn-sm btn-outline-primary" @click="uncommentPhoto(photo.photoId, photo.commentIds[key])"> Delete</button>
+										<div v-if="photo.commentAuthors[key] == user.username">
+											<button type="submit" class="btn btn-sm btn-outline-primary" @click="uncommentPhoto(photo.photoId, photo.commentIds[key])"> Delete</button>
+										</div>
 									</td>
 								</tr>
 							</div>
@@ -216,7 +223,9 @@ export default {
 			</tr>
 		</div>
 		<div>
-			<button v-if="!stream_over" type="button" class="btn btn-sm btn-outline-primary" @click="refreshStream">Refresh</button>
+			<div v-if="!stream_over">
+				<button type="button" class="btn btn-sm btn-outline-primary" @click="refreshStream">Refresh</button>
+			</div>
 			<div v-if="stream_over">
 				<p> No more photos in the stream </p>
 			</div>

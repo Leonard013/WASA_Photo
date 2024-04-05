@@ -477,7 +477,9 @@ export default {
 						<td>
 							<input type="file" ref="photoUploaded" accept="image/png">
 						</td>
-						<button v-if="title.length <= 30 && title.length > 0" type="submit" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">Add Photo</button>
+						<div v-if="title.length <= 30 && title.length > 0">
+							<button  type="submit" class="btn btn-sm btn-outline-primary" @click="uploadPhoto">Add Photo</button>
+						</div>
 
 					</tr>
 				</div>
@@ -485,22 +487,34 @@ export default {
 			</div>
 
 			<div v-if="!isBanned && !isOwner">
-				<button v-if="!isFollowing" type="submit" class="btn btn-sm btn-outline-primary" @click="followUser">Follow</button>
-				<button v-if="isFollowing" type="submit" class="btn btn-sm btn-outline-primary" @click="unfollowUser">Unfollow</button>
-				<button v-if="!hasBanned" type="submit" class="btn btn-sm btn-outline-primary" @click="banUser">Ban</button>
-				<button v-if="hasBanned" type="submit" class="btn btn-sm btn-outline-primary" @click="unbanUser">Unban</button>
+				<div v-if="!isFollowing">
+					<button  type="submit" class="btn btn-sm btn-outline-primary" @click="followUser">Follow</button>
+				</div>
+				<div v-if="isFollowing">
+					<button type="submit" class="btn btn-sm btn-outline-primary" @click="unfollowUser">Unfollow</button>
+				</div>
+				<div v-if="!hasBanned">
+					<button type="submit" class="btn btn-sm btn-outline-primary" @click="banUser">Ban</button>
+				</div>
+				<div v-if="hasBanned">
+					<button  type="submit" class="btn btn-sm btn-outline-primary" @click="unbanUser">Unban</button>
+				</div>
 			</div>
 
 			<div>
 				<input v-model="search_username" placeholder="Profile you are looking for">
-				<button v-if="search_username.length >= 3 && search_username.length <= 20" type="submit" class="btn btn-sm btn-outline-primary" @click="getProfile">Search</button>
-				<button v-if="!isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="backToProfile">Back to Profile</button>
+				<div v-if="search_username.length >= 3 && search_username.length <= 20">
+					<button type="submit" class="btn btn-sm btn-outline-primary" @click="getProfile">Search</button>
+				</div>
+				<div v-if="!isOwner">
+					<button type="submit" class="btn btn-sm btn-outline-primary" @click="backToProfile">Back to Profile</button>
+				</div>
 			</div>
 
 		</div>
-
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-
+		<div v-if="errormsg">
+			<ErrorMsg :msg="errormsg"></ErrorMsg>
+		</div>
 		<div v-if="!isBanned">
 			<div>
 				<tr>
@@ -514,7 +528,9 @@ export default {
 						</tr>
 						<tr>
 							<td>
-								<button v-if="isOwner && (new_username.length >= 3 && new_username.length <= 20)" type="submit" class="btn btn-sm btn-outline-primary" @click="changeUsername">Change Username</button>
+								<div v-if="isOwner && (new_username.length >= 3 && new_username.length <= 20)">
+									<button type="submit" class="btn btn-sm btn-outline-primary" @click="changeUsername">Change Username</button>
+								</div>
 							</td>
 						</tr>
 					</td>
@@ -547,13 +563,19 @@ export default {
 					<td>
 						<tr>
 							<td>
-								<button v-if="isOwner" type="submit" class="btn btn-sm btn-outline-primary" @click="deletePhoto(photo.photoId)">Delete Photo</button>
+								<div v-if="isOwner">
+									<button type="submit" class="btn btn-sm btn-outline-primary" @click="deletePhoto(photo.photoId)">Delete Photo</button>
+								</div>
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<button v-if="photo.likeAuthors ? !photo.likeAuthors.includes(user.userId) : true" type="submit" class="btn btn-sm btn-outline-primary" @click="likePhoto(photo.photoId)">Like</button>
-								<button v-if="photo.likeAuthors ? photo.likeAuthors.includes(user.userId) : false" type="submit" class="btn btn-sm btn-outline-primary" @click="unlikePhoto(photo.photoId)">Unlike</button>
+								<div v-if="photo.likeAuthors ? !photo.likeAuthors.includes(user.userId) : true">
+									<button type="submit" class="btn btn-sm btn-outline-primary" @click="likePhoto(photo.photoId)">Like</button>
+								</div>
+								<div v-if="photo.likeAuthors ? photo.likeAuthors.includes(user.userId) : false">
+									<button type="submit" class="btn btn-sm btn-outline-primary" @click="unlikePhoto(photo.photoId)">Unlike</button>
+								</div>
 							</td>
 							<td>
 								<p>Likes: {{ photo.likeIds ? photo.likeIds.length : 0 }}</p>
@@ -577,7 +599,9 @@ export default {
 											</p>
 										</td>
 										<td>
-											<button v-if="photo.commentAuthors[key] == user.username" type="submit" class="btn btn-sm btn-outline-primary" @click="uncommentPhoto(photo.photoId, photo.commentIds[key])"> Delete</button>
+											<div  v-if="photo.commentAuthors[key] == user.username">
+												<button type="submit" class="btn btn-sm btn-outline-primary" @click="uncommentPhoto(photo.photoId, photo.commentIds[key])"> Delete</button>
+											</div>
 										</td>
 									</tr>
 								</div>
