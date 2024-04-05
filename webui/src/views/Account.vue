@@ -37,8 +37,6 @@ export default {
 			this.getProfile(true)
 		},
 
-		
-
 		async deletePhoto(Id) {
 			this.loading = true;
 			this.errormsg = null;
