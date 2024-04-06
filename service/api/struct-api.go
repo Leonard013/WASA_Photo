@@ -89,7 +89,12 @@ func SavePhoto(file multipart.File, id string) (string, error) {
 	}
 
 	// Specify the directory to save the file
-	uploadPath := "/home/wasa/test-init/WASA/photos"
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	uploadPath := cwd + "/photos"
+	//uploadPath := "/home/wasa/test-init/WASA/photos"
 
 	// Create/Open the file
 	filePath := uploadPath + "/" + id + ".png"
