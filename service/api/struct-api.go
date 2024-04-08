@@ -94,7 +94,6 @@ func SavePhoto(file multipart.File, id string) (string, error) {
 		return "", err
 	}
 	uploadPath := cwd + "/photos"
-	//uploadPath := "/home/wasa/test-init/WASA/photos"
 
 	// Create/Open the file
 	filePath := uploadPath + "/" + id + ".png"
