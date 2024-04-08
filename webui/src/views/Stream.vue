@@ -167,9 +167,8 @@ export default {
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 			<h1 class="h2">Stream</h1>
 		</div>
-		<div v-if="errormsg">
-			<ErrorMsg :msg="errormsg"></ErrorMsg>
-		</div>
+		
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 		
 		<div v-if="stream" v-for="photo in stream" :key="photo.photoId" class="photo-entry">
 			<tr>

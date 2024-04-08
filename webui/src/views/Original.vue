@@ -47,9 +47,9 @@ export default {
 				</div>
 			</div>
 		</div>
-		<div v-if="errormsg">
-			<ErrorMsg :msg="errormsg"></ErrorMsg>
-		</div>
+		
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+
 	</div>
 </template>
 
