@@ -222,13 +222,11 @@ export default {
 				</td>
 			</tr>
 		</div>
-		<div>
-			<div v-if="!stream_over">
-				<button type="button" class="btn btn-sm btn-outline-primary" @click="refreshStream">Refresh</button>
-			</div>
-			<div v-if="stream_over">
-				<p> No more photos in the stream </p>
-			</div>
+		<div v-if="!stream_over">
+			<button type="button" class="btn btn-sm btn-outline-primary" @click="refreshStream">Refresh</button>
+		</div>
+		<div v-if="stream_over">
+			<p> No more photos in the stream </p>
 		</div>
 	</div>
 </template>
